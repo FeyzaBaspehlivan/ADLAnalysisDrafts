@@ -1,0 +1,133 @@
+#info analysis
+#  title "Search for resonances decaying to three W bosons in the hadronic final state at sqrts = 13 TeV"
+#  experiment CMS
+#  id B2G-21-02
+#  publication 
+#  sqrtS 13.0
+#  lumi 138
+#  arXiv
+#  hepdata 
+#  doi 
+
+#adl analysis
+#  adlauthor: Sezen Sekmen
+#  status: Signal regions fully implemented.  Can be written for exact NanoAOD later on.
+#          Lepton ID, boosted object taggers need to be exactly written.
+#  adlnotes: 
+#  -- Which stage is the best to do the jet sorting? In an object? In the region block? In a define?
+#  -- Multiple cuts in the ternary with 2 or 3 jets.  Writing the condition each time is not good.
+
+# OBJECT DEFINITIONS
+object vertices
+  take Vertex
+object muons
+  take Muon
+  select pT > 20
+  select abs(Eta) < 2.4
+  # isolation
+
+object electrons
+  take Electron
+  select pT > 35
+  select abs(eta) < 2.5
+  reject abs(eta) [] 1.44 1.57
+  # isolation
+
+object leptons : Union(electrons, muons)
+
+object AK8jets
+  take Fatjet
+  select pT(Fatjet) > 200
+  select abs(eta) < 2.4
+
+object deepW06
+  take AK8jets
+  select deepW > 0.6
+
+object AK4jets
+  take Jet
+  reject dR(Jet, AK8jets) < 0.4
+
+object bjets
+  take AK4jets
+  #select Btag(AK4jets) == 1
+  select deepCSVmedium == 1
+  select dR(AK4jets, AK8jets) > 0.8
+
+
+# DEFINITIONS
+define AK8jetsmass = sort(AK8jets, m, desc)
+define ST = sum(pt(AK8jets)) + MET
+
+# EVENT SELECTION
+
+# preselection region
+region presel
+  select size(vertices) > 0
+  select size(leptons) == 0
+  select size(AK8jets) [] 2 3
+  select pT(AK8jets[0]) > 400
+  select m(AK8jets[0]) > 40
+  select m(AK8jets[1]) > 40
+  select size(AK8jetsmass) == 2 ? m(AK8jetsmass[0]) > 70 and m(AK8jetsmass[1]) [] 70 100
+  select size(AK8jetsmass) == 3 ? m(AK8jetsmass[0]) [] 70 100 and m(AK8jetsmass[1]) [] 70 100 and m(AK8jetsmass[2]) < 100  
+  select size(AK8jetsmass) == 2 ? ((m(AK8jetsmass[0]) > 100 and deepWH(AK8jetsmass[0]) > 0.8) or (m(AK8jetsmass[0]) [] 70 100 and deepW(AK8jetsmass[0]) > 0.8)) and deepW(AK8jetsmass[1]) > 0.8
+  select size(AK8jetsmass) == 3 ? size(deepW06) >= 2  
+  select ST > 1300
+  reject size(bjetsveto) == 0  
+  select m(AK8jets) > 1100
+
+region SR1
+  select presel
+  select size(AK8jetsmass) == 2
+  select m(AK8jetsmass[0]) [] 70 100
+  select m(AK8jetsmass[1]) [] 70 100
+  select deepW(AK8jetsmass[0]) > 0.8
+  select deepW(AK8jetsmass[1]) > 0.8
+
+region SR2
+  select presel
+  select size(AK8jets) == 2
+  select m(AK8jets[0]) [] 100 200
+  select m(AK8jets[1]) [] 70 100
+  select deepWH(AK8jets[0]) > 0.8
+  select deepW(AK8jets[1]) > 0.8
+
+region SR3
+  select presel
+  select size(AK8jets) == 2
+  select m(AK8jets[0]) > 200
+  select m(AK8jets[1]) [] 70 100
+  select deepWH(AK8jets[0]) > 0.8
+  select deepW(AK8jets[1]) > 0.8
+
+region SR4
+  select presel
+  select size(AK8jetsmass) == 2
+  select m(AK8jetsmass[0]) [] 70 100
+  select m(AK8jetsmass[1]) [] 70 100
+  select m(AK8jetsmass[2]) [] 60 100
+  select deepW(AK8jetsmass[0]) > 0.6
+  select deepW(AK8jetsmass[1]) > 0.6
+  select deepW(AK8jetsmass[2]) > 0.6
+
+region SR5
+  select presel
+  select size(AK8jetsmass) == 2
+  select m(AK8jetsmass[0]) [] 70 100
+  select m(AK8jetsmass[1]) [] 70 100
+  select m(AK8jetsmass[2]) [] 60 100
+  select size(deepW06) == 2
+  select deepW(AK8jetsmass[1]) > 0.6
+  select deepW(AK8jetsmass[2]) > 0.6
+
+region SR6
+  select presel
+  select size(AK8jetsmass) == 2
+  select m(AK8jetsmass[0]) [] 70 100
+  select m(AK8jetsmass[1]) [] 70 100
+  select m(AK8jetsmass[2]) < 60
+  select deepW(AK8jetsmass[0]) > 0.8
+  select deepW(AK8jetsmass[1]) > 0.8
+
+
