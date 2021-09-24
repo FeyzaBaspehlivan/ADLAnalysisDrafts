@@ -9,7 +9,7 @@
 #  hepdata 
 #  doi 
 
-#adl analysis
+#info adl 
 #  adlauthor: Sezen Sekmen
 #  status: Signal regions fully implemented.  Can be written for exact NanoAOD later on.
 #          Lepton ID, boosted object taggers need to be exactly written.
