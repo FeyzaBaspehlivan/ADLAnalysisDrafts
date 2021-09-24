@@ -94,10 +94,12 @@ algo SR6j
   select MTl > 225
   # APLANARITY > 0.05
   # no MET/mEff cut
-  Bin mEffjj [] 700  2100 && Size(bJet)==0 # EXCLU
-  Bin mEffjj [] 700  2100 && Size(bJet)>=1 # EXCLU
-  Bin mEffjj [] 2100 3500 && Size(bJet)==0 # EXCLU
-  Bin mEffjj [] 2100 3500 && Size(bJet)>=1 # EXCLU
+  Bin mEffjj [] 700  1633 && Size(bJet)==0 # EXCLU
+  Bin mEffjj [] 700  1633 && Size(bJet)>=1 # EXCLU
+  Bin mEffjj [] 1633 2566 && Size(bJet)==0 # EXCLU
+  Bin mEffjj [] 1633 2566 && Size(bJet)>=1 # EXCLU
+  Bin mEffjj [] 2566 3500 && Size(bJet)==0 # EXCLU
+  Bin mEffjj [] 2566 3500 && Size(bJet)>=1 # EXCLU
   Bin mEffjj  >   3500    && Size(bJet)==0 # EXCLU
   Bin mEffjj  >   3500    && Size(bJet)>=1 # EXCLU
   Bin mEffjj  >   2800    && Size(bJet)==0 ## DISC
