@@ -1,0 +1,104 @@
+info analysis
+  title "Search for squarks and gluinos in final states with one isolated lepton, jets, and missing transverse momentum at √ 𝒔 = 13 TeV with the ATLAS detector"
+  experiment ATLAS
+  id "SUSY-2018-10"
+  publication "Eur. Phys. J. C 81 (2021) 600"
+  sqrtS 13.0
+  lumi 139
+  arXiv "2101.01629"
+  doi "10.1140/epjc/s10052-021-09344-w"
+    
+#OBJECT SELECTION
+object gJet: JET
+  select pT(JET) > 30
+
+object bJet: gJet
+  select BTag(gJet) == 0
+
+object gEle: ELE
+  select pT(ELE) > 25
+
+object gMuo: MUO
+  select pT(MUO) > 25
+
+object gElejj: ELE
+  select pT(ELE) > 7 && pT(ELE) < min(10 * Size(gJet), 25)
+
+object gMuojj: MUO
+  select pT(MUO) > 6 && pT(MUO) < min(10 * Size(gJet), 25)
+
+object gLeptons: Union(gEle, gMuo)
+object gLeptonsjj: Union(gElejj, gMuojj)
+
+define mEffjj = pT(gLeptonsjj) + pT(gJet) + MET
+define mEff   = pT(gLeptons  ) + pT(gJet) + MET
+
+define MTljj = sqrt(2*pT(gLeptonsjj[0])*MET*( 1-cos(Phi(METLV[0]) - Phi(gLeptonsjj[0]) )))
+define MTl   = sqrt(2*pT(gLeptons[0]  )*MET*( 1-cos(Phi(METLV[0]) - Phi(gLeptons[0]  ) )))
+
+#Regions
+algo SR2j
+  select ALL
+  select Size(gLeptonsjj) == 1
+  select Size(gJet) >= 2
+  select MET > 400
+  select MTljj > 100
+  # no APLANARITY cut
+  select MET/mEffjj > 0.25
+  Bin mEffjj [] 700  1600 && Size(bJet)==0 # EXCLU
+  Bin mEffjj [] 700  1600 && Size(bJet)>=1 # EXCLU
+  Bin mEffjj [] 1600 2500 && Size(bJet)==0 # EXCLU
+  Bin mEffjj [] 1600 2500 && Size(bJet)>=1 # EXCLU
+  Bin mEffjj  >   2500    && Size(bJet)==0 # EXCLU
+  Bin mEffjj  >   2500    && Size(bJet)>=1 # EXCLU
+  Bin mEffjj  >   1300    && Size(bJet)==0 ## DISC
+  Bin mEffjj  >   1900    && Size(bJet)==0 ## DISC
+
+algo SR4jHx
+  select ALL
+  select Size(gLeptons) == 1
+  select Size(gJet) [] 4 5 
+  select MET > 300
+  select MTl > 520
+  # APLANARITY > 0.01
+  select MET/mEff > 0.2
+  Bin mEffjj [] 1000 1900 && Size(bJet)==0 # EXCLU
+  Bin mEffjj [] 1000 1900 && Size(bJet)>=1 # EXCLU
+  Bin mEffjj [] 1900 2800 && Size(bJet)==0 # EXCLU
+  Bin mEffjj [] 1900 2800 && Size(bJet)>=1 # EXCLU
+  Bin mEffjj  >   2800    && Size(bJet)==0 # EXCLU
+  Bin mEffjj  >   2800    && Size(bJet)>=1 # EXCLU
+  Bin mEffjj  >   2200    && Size(bJet)==0 ## DISC
+
+algo SR4jLx
+  select ALL
+  select Size(gLeptons) == 1
+  select Size(gJet) [] 4 5
+  select MET > 300
+  select MTl [] 150 520
+  # APLANARITY > 0.01
+  select MET/mEff > 0.2
+  Bin mEffjj [] 1000 1900 && Size(bJet)==0 # EXCLU
+  Bin mEffjj [] 1000 1900 && Size(bJet)>=1 # EXCLU
+  Bin mEffjj [] 1900 2800 && Size(bJet)==0 # EXCLU
+  Bin mEffjj [] 1900 2800 && Size(bJet)>=1 # EXCLU
+  Bin mEffjj  >   2800    && Size(bJet)==0 # EXCLU
+  Bin mEffjj  >   2800    && Size(bJet)>=1 # EXCLU
+  Bin mEffjj  >   2200    && Size(bJet)==0 ## DISC
+
+algo SR6j
+  select ALL
+  select Size(gLeptons) == 1
+  select Size(gJet) >= 6
+  select MET > 300
+  select MTl > 225
+  # APLANARITY > 0.05
+  # no MET/mEff cut
+  Bin mEffjj [] 700  2100 && Size(bJet)==0 # EXCLU
+  Bin mEffjj [] 700  2100 && Size(bJet)>=1 # EXCLU
+  Bin mEffjj [] 2100 3500 && Size(bJet)==0 # EXCLU
+  Bin mEffjj [] 2100 3500 && Size(bJet)>=1 # EXCLU
+  Bin mEffjj  >   3500    && Size(bJet)==0 # EXCLU
+  Bin mEffjj  >   3500    && Size(bJet)>=1 # EXCLU
+  Bin mEffjj  >   2800    && Size(bJet)==0 ## DISC
+  Bin mEffjj  >   2100    && Size(bJet)==0 ## DISC
