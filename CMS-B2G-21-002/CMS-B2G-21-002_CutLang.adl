@@ -20,17 +20,18 @@
 # OBJECT DEFINITIONS
 object vertices
   take Vertex
+  
 object muons
   take Muon
-  select pT > 20
-  select abs(Eta) < 2.4
+  select pT(Muon) > 20
+  select abs(Eta(Muon)) < 2.4
   # isolation
 
 object electrons
   take Electron
-  select pT > 35
-  select abs(eta) < 2.5
-  reject abs(eta) [] 1.44 1.57
+  select pT(Electron) > 35
+  select abs(eta(Electron)) < 2.5
+  reject abs(eta(Electron)) [] 1.44 1.57
   # isolation
 
 object leptons : Union(electrons, muons)
@@ -38,11 +39,11 @@ object leptons : Union(electrons, muons)
 object AK8jets
   take Fatjet
   select pT(Fatjet) > 200
-  select abs(eta) < 2.4
+  select abs(eta(Fatjet)) < 2.4
 
 object deepW06
   take AK8jets
-  select deepW > 0.6
+  select deepW(AK8jets) > 0.6
 
 object AK4jets
   take Jet
@@ -56,7 +57,7 @@ object bjets
 
 
 # DEFINITIONS
-define AK8jetsmass = sort(AK8jets, m, desc)
+define AK8jetsmass = sort(AK8jets, m, desc)   # this doesnt make sense in ADL/CL
 define ST = sum(pt(AK8jets)) + MET
 
 # EVENT SELECTION
