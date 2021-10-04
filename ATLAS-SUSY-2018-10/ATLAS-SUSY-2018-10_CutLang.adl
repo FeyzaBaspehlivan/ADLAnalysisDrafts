@@ -9,22 +9,28 @@ info analysis
   doi "10.1140/epjc/s10052-021-09344-w"
     
 #OBJECT SELECTION
-object gJet: JET
+object gJet:
+  take JET
   select pT(JET) > 30
 
-object bJet: gJet
+object bJet:
+  take gJet
   select BTag(gJet) == 0
 
-object gEle: ELE
+object gEle:
+  take ELE
   select pT(ELE) > 25
 
-object gMuo: MUO
+object gMuo:
+  take MUO
   select pT(MUO) > 25
 
-object gElejj: ELE
+object gElejj:
+  take ELE
   select pT(ELE) > 7 && pT(ELE) < min(10 * Size(gJet), 25)
 
-object gMuojj: MUO
+object gMuojj:
+  take MUO
   select pT(MUO) > 6 && pT(MUO) < min(10 * Size(gJet), 25)
 
 object gLeptons: Union(gEle, gMuo)
@@ -37,7 +43,16 @@ define MTljj = sqrt(2*pT(gLeptonsjj[0])*MET*( 1-cos(Phi(METLV[0]) - Phi(gLeptons
 define MTl   = sqrt(2*pT(gLeptons[0]  )*MET*( 1-cos(Phi(METLV[0]) - Phi(gLeptons[0]  ) )))
 
 #Regions
-algo SR2j
+region SR2j
+  select ALL
+  select Size(gLeptonsjj) == 1
+  select Size(gJet) >= 2
+  select MET > 400
+  select MTljj > 100
+  # no APLANARITY cut
+  select MET/mEffjj > 0.25
+
+region SR2jExcluBin
   select ALL
   select Size(gLeptonsjj) == 1
   select Size(gJet) >= 2
@@ -51,10 +66,28 @@ algo SR2j
   Bin mEffjj [] 1600 2500 && Size(bJet)>=1 # EXCLU
   Bin mEffjj  >   2500    && Size(bJet)==0 # EXCLU
   Bin mEffjj  >   2500    && Size(bJet)>=1 # EXCLU
+
+region SR2jDiscBin
+  select ALL
+  select Size(gLeptonsjj) == 1
+  select Size(gJet) >= 2
+  select MET > 400
+  select MTljj > 100
+  # no APLANARITY cut
+  select MET/mEffjj > 0.25
   Bin mEffjj  >   1300    && Size(bJet)==0 ## DISC
   Bin mEffjj  >   1900    && Size(bJet)==0 ## DISC
 
-algo SR4jHx
+region SR4jHx
+  select ALL
+  select Size(gLeptons) == 1
+  select Size(gJet) [] 4 5 
+  select MET > 300
+  select MTl > 520
+  # APLANARITY > 0.01
+  select MET/mEff > 0.2
+
+region SR4jHxExclBin
   select ALL
   select Size(gLeptons) == 1
   select Size(gJet) [] 4 5 
@@ -68,9 +101,27 @@ algo SR4jHx
   Bin mEff [] 1900 2800 && Size(bJet)>=1 # EXCLU
   Bin mEff  >   2800    && Size(bJet)==0 # EXCLU
   Bin mEff  >   2800    && Size(bJet)>=1 # EXCLU
+
+region SR4jHxDiscBin
+  select ALL
+  select Size(gLeptons) == 1
+  select Size(gJet) [] 4 5 
+  select MET > 300
+  select MTl > 520
+  # APLANARITY > 0.01
+  select MET/mEff > 0.2
   Bin mEff  >   2200    && Size(bJet)==0 ## DISC
 
-algo SR4jLx
+region SR4jLx
+  select ALL
+  select Size(gLeptons) == 1
+  select Size(gJet) [] 4 5
+  select MET > 300
+  select MTl [] 150 520
+  # APLANARITY > 0.01
+  select MET/mEff > 0.2
+
+algo SR4jLxExcluBin
   select ALL
   select Size(gLeptons) == 1
   select Size(gJet) [] 4 5
@@ -84,9 +135,27 @@ algo SR4jLx
   Bin mEff [] 1900 2800 && Size(bJet)>=1 # EXCLU
   Bin mEff  >   2800    && Size(bJet)==0 # EXCLU
   Bin mEff  >   2800    && Size(bJet)>=1 # EXCLU
+
+region SR4jLxDiscBin
+  select ALL
+  select Size(gLeptons) == 1
+  select Size(gJet) [] 4 5
+  select MET > 300
+  select MTl [] 150 520
+  # APLANARITY > 0.01
+  select MET/mEff > 0.2
   Bin mEff  >   2200    && Size(bJet)==0 ## DISC
 
-algo SR6j
+region SR6j
+  select ALL
+  select Size(gLeptons) == 1
+  select Size(gJet) >= 6
+  select MET > 300
+  select MTl > 225
+  # APLANARITY > 0.05
+  # no MET/mEff cut
+  
+region SR6jExcluBin
   select ALL
   select Size(gLeptons) == 1
   select Size(gJet) >= 6
@@ -102,5 +171,14 @@ algo SR6j
   Bin mEff [] 2566 3500 && Size(bJet)>=1 # EXCLU
   Bin mEff  >   3500    && Size(bJet)==0 # EXCLU
   Bin mEff  >   3500    && Size(bJet)>=1 # EXCLU
+  
+region SR6jDiscBin
+  select ALL
+  select Size(gLeptons) == 1
+  select Size(gJet) >= 6
+  select MET > 300
+  select MTl > 225
+  # APLANARITY > 0.05
+  # no MET/mEff cut
   Bin mEff  >   2800    && Size(bJet)==0 ## DISC
   Bin mEff  >   2100    && Size(bJet)==0 ## DISC
