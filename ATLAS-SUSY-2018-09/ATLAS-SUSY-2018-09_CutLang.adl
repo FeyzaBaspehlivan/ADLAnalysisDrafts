@@ -1,0 +1,100 @@
+#CLA ADL 1909.08457v2
+info analysisExample
+  title "Search for squarks and gluinos in final states with same-sign leptons and jets using 139 fb−1 of data collected with the ATLAS detector"
+  #by Sabri Vatansever
+
+#EventReco
+
+object goodJET : JET
+select Pt(JET) > 20.0
+select AbsEta(JET) < 2.8
+
+object goodBJET : JET
+select bTag(JET) == 1
+select Pt(JET) > 20.0
+select AbsEta(JET) < 2.5
+
+object goodMUO : MUO
+select AbsEta(MUO) < 2.5
+select Pt(MUO) > 10.0
+
+# |z0 sin θ| < 0.5 mm.
+# |d0| < 3σ(d0)
+
+object goodELE : ELE
+select Pt(ELE) > 10.0
+select AbsEta(ELE) ][ 1.37 1.57
+select AbsEta(ELE) < 2.0 #SR
+
+#|z0 sin θ| < 0.5 mm.
+#|d0| < 5σ(d0)
+
+object goodLEPs : Union(goodELE,goodMUO)
+
+object isogoodLEPs : goodLEPs
+select dR(goodLEPs,goodJET) > min(0.4, 0.1 + 9.6/Pt(goodLEPs))
+
+object goodJET1 : goodJET
+select Pt(goodJET) > 25.0
+
+object goodJET2 : goodJET
+select Pt(goodJET) > 40.0
+
+###########################
+define meff : fHT(goodJET) + fHT(goodLEPs) + MET
+define METmeff : MET / meff
+define twSSLEPs : abs(q(isogoodLEPs_-1) + q(isogoodLEPs_-2))
+define thSSLEPs : abs(q(isogoodLEPs[-1]) + q(isogoodLEPs[-2]) + q(isogoodLEPs[-3]))
+define SSele : goodELE_-1 goodELE_-2
+define SSeleMassVeto : m(SSele) - 91
+
+region Rpv2L
+select ALL
+select size(goodBJET) >= 0
+select size(isogoodLEPs) >= 2
+select size(goodJET2) >= 6
+select twSSLEPs ~= 2
+select twSSLEPs == 2
+select meff > 2600
+
+region Rpc2L0b
+select ALL
+select MET > 200
+select size(goodBJET) == 0
+select size(isogoodLEPs) >= 2
+select size(goodJET2) >= 6
+select twSSLEPs ~= 2
+select twSSLEPs == 2
+select MET > 200
+select meff > 1000
+select METmeff > 0.2
+
+region Rpc2L1b
+select ALL
+select size(goodBJET) >= 1
+select size(isogoodLEPs) >= 2
+select size(goodJET2) >= 6
+select twSSLEPs ~= 2
+select twSSLEPs == 2
+select METmeff > 0.25
+
+region Rpc2L2b
+select ALL
+select MET > 300
+select size(goodBJET) >= 2
+select size(isogoodLEPs) >= 2
+select size(goodJET1) >= 6
+select twSSLEPs ~= 2
+select twSSLEPs == 2
+select MET > 300
+select meff > 1400
+select METmeff > 0.14
+
+region Rpc3LSS1b
+select ALL
+select size(goodBJET) >= 1
+select size(isogoodLEPs) >= 3
+select thSSLEPs ~= 3
+select thSSLEPs == 3
+select METmeff > 0.14
+reject SSeleMassVeto ][ 81 101
