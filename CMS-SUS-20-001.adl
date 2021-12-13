@@ -1,0 +1,134 @@
+TRGm = 1 #     muon Trigger Type: 0=dont trigger, 1=1st trigger (data) 2=2nd trigger (MC)
+TRGe = 0 # electron Trigger Type: 0=dont trigger, 1=1st trigger (data) 2=2nd trigger (MC)
+
+###### DEFINITIONS
+define   ZReco :  MUO[1] MUO[0]
+define   mLL : { ZReco }m
+def   ptLL : { ZReco }Pt
+def   qLL : { ZReco }q
+
+
+object goodJETs using JET
+  select {JET_}Pt > 35
+
+object fatjetV using FatJet
+  select {FatJet_}Pt > 200
+
+define dijetmass : { goodJETs[0] goodJETs[1] }m
+define dijetmassbb : { BJET[0] BJET[1] }m
+
+algo     OSSF
+  cmd  ALL
+  cmd  Size(MUO) == 2
+  cmd  qLL == 0
+
+algo     SRAbveto
+  OSSF
+  cmd mLL [] 86 96
+  cmd Size(goodJETs) [] 2 3 
+  cmd Size(BJET) == 0
+  cmd Sum(Pt(JET)) > 500
+  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 80.0
+
+
+algo     SRBbveto
+  OSSF
+  cmd mLL [] 86 96
+  cmd Size(goodJETs) [] 4 5
+  cmd Size(BJET) == 0
+  cmd Sum(Pt(goodJETs)) > 500
+  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 80.0
+
+
+algo     SRCbveto
+  OSSF
+  cmd mLL [] 86 96
+  cmd Size(goodJETs) > 5
+  cmd Size(BJET) == 0
+  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 80.0
+
+
+algo     SRAbtag
+  OSSF
+  cmd mLL [] 86 96
+  cmd Size(goodJETs) [] 2 3 
+  cmd Size(BJET) > 0
+  cmd Sum(Pt(JET)) > 200
+  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 100.0
+
+
+algo     SRBbtag
+  OSSF
+  cmd mLL [] 86 96
+  cmd Size(goodJETs) [] 4 5
+  cmd Size(BJET) > 0
+  cmd Sum(Pt(goodJETs)) > 200
+  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 100.0
+
+
+algo     SRCbtag
+  OSSF
+  cmd mLL [] 86 96
+  cmd Size(goodJETs) > 5
+  cmd Size(BJET) > 0
+  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 100.0
+
+
+algo     BoostedVZ
+  OSSF
+  cmd mLL [] 86 96
+  cmd Size(goodJETs) < 2
+  cmd Size(fatjetV) > 0
+  cmd Size(BJET) == 0
+  
+
+algo     ResolvedVZ
+  OSSF
+  cmd mLL [] 86 96
+  cmd Size(goodJETs) > 1
+  cmd Size(BJET) == 0
+  cmd dijetmass < 110
+#  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 80.0
+
+
+algo     HZ
+  OSSF
+  cmd mLL [] 86 96
+  cmd Size(goodJETs) > 1
+  cmd Size(BJET) == 2
+  cmd dijetmassbb < 150
+#  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 200.0
+ 
+
+algo     EdgeFit
+  cmd  ALL
+  cmd Size(goodJETs) > 1
+
+algo     regionbveto
+  cmd  ALL
+  cmd Size(goodJETs) > 1
+  cmd Size(BJET) == 0
+#  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 80.0
+
+
+algo     regionbtag
+  cmd  ALL
+  cmd Size(goodJETs) > 1
+  cmd Size(BJET) > 0
+#  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 80.0
+
+
+algo     sleptonjetless
+  cmd  ALL
+  cmd Size(goodJETs) == 0
+  cmd Size(BJET) == 0
+  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 100.0
+
+
+algo     sleptonwithjet
+  cmd  ALL
+  cmd Size(goodJETs) > 0
+  cmd Size(BJET) == 0
+#  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 100.0
+
+

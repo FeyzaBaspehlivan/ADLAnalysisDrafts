@@ -1,0 +1,99 @@
+TRGm = 1 #     muon Trigger Type: 0=dont trigger, 1=1st trigger (data) 2=2nd trigger (MC)
+TRGe = 0 # electron Trigger Type: 0=dont trigger, 1=1st trigger (data) 2=2nd trigger (MC)
+
+###### DEFINITIONS
+define   ZReco :  MUO[1] MUO[0]
+define   mLL : { ZReco }m
+def   ptLL : { ZReco }Pt
+def   qLL : { ZReco }q
+
+object goodMUOs using MUO
+  select {MUO_}Pt > 25
+  select {MUO_}AbsEta < 2.1
+
+object badMUOs using MUO
+  select {MUO_}Pt > 5
+  select {MUO_}AbsEta < 2.4
+
+object goodELEs using ELE
+  select {ELE_}Pt > 30
+  select {ELE_}AbsEta < 1.44
+
+object goodJETs using JET
+  select {JET_}Pt > 30
+  select {JET_}AbsEta < 2.4
+
+object nonBJETs using JET
+  select {JET_}bTag != 1
+  select {JET_}Pt < 300
+
+
+object goodFatJet using FatJet
+  select {FatJet_}Pt > 250
+  select {FatJet_}AbsEta < 2.4
+
+
+define coTransverseMass : sqrt( 2 * { BJET[0] }Pt * { BJET[1] }Pt * cos( { BJET[0] BJET[1] }Phi ) )
+define transverMass :  
+
+algo     preselection
+  cmd  ALL
+  cmd  Size(goodMUOs) >= 2
+  cmd  Size(goodJETs) [] 2 3
+  cmd  Size(BJET) == 2
+  cmd  Size(nonBJETs) == 1
+  cmd  MET > 125
+  cmd  { BJET[-1] BJET[-1] }m [] 90 150
+  cmd  fMT2(MUO[0], MUO[1], METLV[0]) > 150.0
+  cmd  coTransverseMass > 200.0
+
+algo     nH0-nJ2-1
+  preselection
+  cmd Size(goodJETs) == 2 
+  cmd MET > 125
+  cmd MET <= 200
+
+algo     nH0-nJ2-2
+  preselection
+  cmd Size(goodJETs) == 2 
+  cmd MET > 200
+  cmd MET <= 300
+
+algo     nH0-nJ2-3
+  preselection
+  cmd Size(goodJETs) == 2 
+  cmd MET > 300
+  cmd MET <= 400
+
+algo     nH0-nJ2-4
+  preselection
+  cmd Size(goodJETs) == 2
+  cmd Size(BJET) == 0
+  cmd MET > 400
+
+algo     nH0-nJ3-5
+  preselection
+  cmd Size(goodJETs) == 3 
+  cmd MET > 125
+  cmd MET <= 200
+
+algo     nH0-nJ3-6
+  preselection
+  cmd Size(goodJETs) == 3 
+  cmd MET > 200
+  cmd MET <= 300
+
+algo     nH0-nJ3-7
+  preselection
+  cmd Size(goodJETs) == 3
+  cmd MET > 300
+  cmd MET <= 400
+
+algo     nH0-nJ3-8
+  preselection
+  cmd Size(goodJETs) == 3
+  cmd Size(BJET) == 0
+  cmd MET > 400
+
+
+

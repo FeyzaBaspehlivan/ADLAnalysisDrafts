@@ -1,0 +1,131 @@
+TRGm = 1 #     muon Trigger Type: 0=dont trigger, 1=1st trigger (data) 2=2nd trigger (MC)
+TRGe = 0 # electron Trigger Type: 0=dont trigger, 1=1st trigger (data) 2=2nd trigger (MC)
+
+
+
+###### DEFINITIONS
+define   ZReco :  MUO[1] MUO[0]
+define   mLL : { ZReco }m
+def   ptLL : { ZReco }Pt
+def   qLL : { ZReco }q
+
+object goodMUOs using MUO
+  select Pt(MUO_) > 30.0
+  select Eta(MUO_) < 2.5
+
+object goodJETs using JET
+  select E(JET_) >= 0
+  select Pt(JET_) > 25
+  select abs(Eta(JET_)) <= 2.5
+
+object subfatjet using FatJet
+  select m( FatJet ) [] 50 100
+  select Size(FatJet constituents) >= 2
+
+object subfatjetH using FatJet
+  select m( FatJet ) [] 50 100
+  select Size(FatJet constituents) >= 2
+
+object subfatjetV using FatJet
+  select m( FatJet ) [] 100 160
+  select Size(FatJet constituents) >= 2
+
+def   HiggsBoosted :  subfatjetH[-1]
+def   HiggsMassBoosted : { HiggsBoosted }m
+def   chi2HiggsBoosted : (HiggsMassBoosted - 126) ^ 2 / 12.50
+
+def   HiggsResolved :  goodJETs[-1] goodJETs[-1]
+def   HiggsMassResolved : { HiggsResolved }m
+def   chi2HiggsResolved : (HiggsMassResolved - 126) ^ 2 / 12.50
+
+def   VBoosted :  subfatjetV[-1]
+def   VMassBoosted : { VBoosted }m
+def   chi2VBoosted : (VMassBoosted - 85) ^ 2 / 10.78
+
+def   VResolved :  goodJETs[-1] goodJETs[-1]
+def   VMassResolved : { VResolved }m
+def   chi2VResolved : (VMassResolved - 85) ^ 2 / 10.78
+
+def   DE6HiggsResolved :  HiggsResolved JET[-3]
+def   DE6Z :  ZReco JET[-4]
+def   chi2DHjResolved : ( { HiggsResolved JET_-3 }m ^ 2 - { ZReco JET_-4 }m ^ 2 ) / ((2.7 * { DE6Z }m + 0.043) ^ 2 + (22.2 * HiggsMassResolved + 0.034) ^ 2)
+
+#def   DE6HiggsBoosted :  HiggsBoosted JET[-3]
+#def   DE6Z :  ZReco JET[-4]
+#def   chi2HiggsBoosted : { Higgs JET_-3 }m ^ 2 - { ZReco JET_-4 }m ^ 2 / 5069 + { Higgs }m - 126 / 18 ^ 2 + { Higgs , JET_-3 }dR $ 1 * 999 + { ZReco , JET_-4 }dR $ 1 * 888 + { JET_-3 }Pt $ 65 * 987 + { JET_-4 }Pt $ 65 * 987 + ( { JET_-3 }Pt $ 100 * { JET_-4 }Pt $ 100 ) * 9000
+
+#def   DE6VResolved :  VResolved JET[-3]
+#def   DE6Z :  ZReco JET[-4]
+#def   chi2VResolved : { Higgs JET_-3 }m ^ 2 - { ZReco JET_-4 }m ^ 2 / 5069 + { Higgs }m - 126 / 18 ^ 2 + { Higgs , JET_-3 }dR $ 1 * 999 + { ZReco , JET_-4 }dR $ 1 * 888 + { JET_-3 }Pt $ 65 * 987 + { JET_-4 }Pt $ 65 * 987 + ( { JET_-3 }Pt $ 100 * { JET_-4 }Pt $ 100 ) * 9000
+
+#def   DE6VBoosted :  VBoosted JET[-3]
+#def   DE6Z :  ZReco JET[-4]
+#def   chi2VBoosted : { Higgs JET_-3 }m ^ 2 - { ZReco JET_-4 }m ^ 2 / 5069 + { Higgs }m - 126 / 18 ^ 2 + { Higgs , JET_-3 }dR $ 1 * 999 + { ZReco , JET_-4 }dR $ 1 * 888 + { JET_-3 }Pt $ 65 * 987 + { JET_-4 }Pt $ 65 * 987 + ( { JET_-3 }Pt $ 100 * { JET_-4 }Pt $ 100 ) * 9000
+
+
+object higgsU : Union( HiggsBoosted , HiggsResolved )
+define higgs = higgsU[-1]
+def   chi2Higgs : ( {higgs}m - 125) ^ 2 / 18 ^ 2
+
+
+
+algo     preselection
+  cmd  ALL
+  cmd  Size(goodMUOs) >= 1
+  cmd  Size(goodMUOs) >= 2
+  cmd  Size(goodMUOs) == 2
+  cmd  qLL == 0
+  #cmd  LEPsf
+  cmd  ptLL >= 200
+  cmd  Size(goodJETs) >= 2
+  cmd  Sum(Pt(goodJETs)) >= 300
+  cmd  Size(FatJet) >= 1
+
+algo     signalRegion1
+  preselection
+  cmd  mLL []  87 95
+  cmd { goodJETs_0 }Pt >= 100
+  cmd { goodJETs_1 }Pt >= 65
+  cmd  Size(subfatjetH) >= 1
+  cmd  Size(subfatjetV) >= 1
+  #cmd chi2HiggsBoosted ~= 0
+  cmd chi2HiggsResolved ~= 0
+  #cmd chi2VBoosted ~= 0
+  #cmd chi2HiggsBoosted <= 5
+  cmd chi2HiggsResolved <= 5
+  #cmd chi2VBoosted <= 5
+  cmd chi2DHjResolved ~= 0
+  cmd chi2DHjResolved <= 15
+  #cmd chi2HiggsBoosted ~= 0
+  #cmd chi2HiggsBoosted <= 15
+  #cmd chi2Higgs ~= 0   #select the best higgs
+  #cmd { HiggsResolved }nbj == 1
+
+  #chi2HiggsResolved > chi2HiggsBoosted ? Higgs = HiggsResolved : Higgs = HiggsBoosted
+  #cmd chi2HiggsBoosted <= 15
+  #cmd { JET_-1 JET_-2 }nbj > 0
+
+algo     signalRegion2
+  preselection
+  cmd  mLL []  87 95
+
+algo     ttbarCR
+ preselection
+ select  Size(BJET) >= 2
+ cmd  bTagSF
+ cmd  mLL []  50 87 OR mLL > 95
+ cmd MET < 200
+ cmd { ZReco , JET[0] }dR ][ 2.0 2.8
+
+algo     zjetsCR
+  preselection
+  cmd  mLL []  87 95
+  cmd  Sum(Pt(JET)) < 1050
+
+
+
+#  algo testo
+#      cmd ALL
+#      cmd  Size(MUO) == 2
+#      cmd chi2Higgs ~= 0   #select the best higgs
+#      histo hHigPtb, "Higgs Pt", 100, 0, 150, Pt(higgs)
