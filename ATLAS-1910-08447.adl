@@ -1,0 +1,68 @@
+info analysis
+  experiment ATLAS
+  #title Search for new resonances in mass distributions of
+  # jet pairs using 139 fb-1 of pp collisions at sqrt(s) = 13 TeV with the ATLAS detector
+  sqrtS 13
+  lumi 139
+  #arXiv 1910.08447
+  #doi 10.1007/JHEP03(2020)145
+  #publication JHEP 03 (2020) 145
+
+object goodJet : JET
+  select {JET}Pt > 150
+
+object btjet : goodJet
+  select bTag(goodJet) == 1
+
+define diJet : goodJet[0] goodJet[1]
+define ystar : (Rap(goodJet[0]) - Rap(goodJet[1]))/2
+
+region inclusive1 
+  select ALL 
+  select Size(goodJet) >= 2
+  select dPhi(goodJet[0] , goodJet[1]) > 1.0
+  select abs((ystar)) < 0.6
+  select m(diJet) > 1100
+  histo mdijet, "diJet Mass (GeV)", 100,0,5000, m(diJet)
+  histo ptdijet, "diJet Pt (GeV)",  100,0,2500, Pt(diJet)
+  histo ptjet0, "Leading Jet Pt (GeV)", 100,0,5000, Pt(goodJet[0])
+
+region inclusive2
+  select ALL
+  select Size(goodJet) >= 2
+  select dPhi(goodJet[0] , goodJet[1]) > 1.0
+  select abs(ystar) < 1.2
+  select m(diJet) > 1717
+  histo mdijet, "diJet Mass (GeV)", 100,0,5000, m(diJet)
+  histo ptdijet, "diJet Pt (GeV)", 100,0,2500, Pt(diJet)
+  histo ptjet0, "Leading Jet Pt (GeV)", 100,0,5000, Pt(goodJet[0])
+
+region onebtag
+  select ALL
+  select Size(goodJet) >= 2
+  select dPhi(goodJet[0] , goodJet[1]) > 1.0
+  select absEta(goodJet[0]) < 2.0 && absEta(goodJet[1]) < 2.0
+  select abs(ystar) < 0.8
+  select m(diJet) > 1133
+  select Size(btjet) >= 1
+  histo dijetm, "diJet Mass (GeV)" ,100,0,5000, m(diJet)
+  histo dijetpt, "diJet Pt (GeV)", 100,0,5000, Pt(diJet)
+  histo jet0pt, "Jet0 Pt (GeV)", 100,0,2000, Pt(goodJet[0])
+  histo jet1pt, "Jet1 Pt (GeV)", 100,0,2000, Pt(goodJet[1])
+
+region twobtag
+  select ALL 
+  select Size(goodJet) >= 2
+  select dPhi(goodJet[0] , goodJet[1]) > 1.0
+  select absEta(goodJet[0]) < 2.0 && absEta(goodJet[1]) < 2.0
+  select abs(ystar) < 0.8
+  select m(diJet) > 1133
+  select Size(btjet) == 2
+  histo dijetm, "diJet Mass (GeV)" ,100,0,5000, m(diJet)
+  histo dijetpt, "diJet Pt (GeV)", 100,0,5000, Pt(diJet)
+  histo jet0pt, "Jet0 Pt (GeV)", 100,0,2000, Pt(goodJet[0])
+  histo jet1pt, "Jet1 Pt (GeV)", 100,0,2000, Pt(goodJet[1])
+
+
+
+
