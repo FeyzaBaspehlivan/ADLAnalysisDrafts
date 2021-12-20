@@ -1,0 +1,44 @@
+info analysis
+  experiment ATLAS
+  #title Search for high-mass dilepton resonances using 139 fb^-1 of pp collision data 
+  #      collected at sqrt(s) = 13 TeV with the ATLAS detector
+  sqrtS 13
+  lumi 139
+  #publication Phys. Lett. B 796 (2019) 68
+  #doi 10.1016/j.physletb.2019.07.016
+  #arXiv 1903.06248v3
+
+object goodEle : ELE
+  select absEta(ELE) < 2.47
+  reject absEta(ELE) [] 1.37 1.52
+
+object goodMuo : MUO
+  select Pt(MUO) > 30
+  select absEta(MUO) < 2.5
+  reject absEta(MUO) [] 1.01 1.1
+
+define Et : sqrt(m(goodEle[0])^2 + Pt(goodEle[0])^2)
+
+define diele : goodEle[0] goodEle[1]
+
+define dimuo : goodMuo[0] goodMuo[1]
+
+object dilepton : Union( diele , dimuo )
+
+# |z0 Sinθ| < 0.5 mm
+# |d0 / σ(d0)| < 5 for electrons
+# |d0 / σ(d0)| < 3 for muons
+
+region test
+  select ALL
+  select Size(goodEle) > 0
+  select Size(goodMuo) > 0
+  select (Size(goodEle) < 2 AND Size(goodMuo) >= 2) OR (Size(goodEle) >= 2)
+  select (Size(goodEle) < 2 AND Size(goodMuo) >= 2) ? q(goodMuo[0]) + q(goodMuo[1]) == 0 : ALL
+  select Et > 30 
+  #select m(dilepton) > 225
+  histo ele-size, "goodelectron size", 10,0,10, Size(goodEle)
+  histo muo-size, "goodmuo size",10,0,10, Size(goodMuo)
+  #histo dilep-size, "dilepton size", 10,0,10, Size(dilepton)
+  #histo dilep-mass, "dilepton mass", 50,0,500, m(dilepton)
+  
