@@ -1,0 +1,59 @@
+info analysis
+  experiment ATLAS
+  #id
+  #title Search for a heavy charged boson in events with a charged lepton and missing transverse momentum
+  #      from pp collisions at sqrt(s) = 13 TeV with the ATLAS detector  
+  sqrtS 13
+  lumi 139
+  #publication Phys. Rev. D 100 (2019) 052013
+  #doi 10.1103/PhysRevD.100.052013
+  #arXiv 1906.05609v2
+
+#Objects
+
+object goodEle : ELE
+  select absEta(ELE) < 2.47
+  reject absEta(ELE) [] 1.37 1.52
+
+object goodMuo : MUO
+  select Pt(MUO) > 55
+  select absEta(MUO) < 2.5
+
+#Variables
+
+# |d0|/σ(d0)| < 5 for electrons
+# σ(E)/E = c_e , (c_e varying between 0.007 and 0.012) 
+# |d0|/σ(d0) < 3 for muons
+# |z0|Sinθ < 0.5 mm for muons
+# σ(Pt)/Pt = c_mu*Pt , (c_mu varying between 0.08 and 0.2 TeV^-1)
+
+define We : goodEle[0] METLV[0]
+define Wmu : goodMuo[0] METLV[0]
+define Et : sqrt(m(goodEle[0])^2 + Pt(goodEle[0])^2)
+define Mtele : sqrt((2*Pt(goodEle[0])*MET)*(1-cos(Phi(METLV[0]) - Phi(goodEle[0]))))
+define Mtmuo : sqrt((2*Pt(goodMuo[0])*MET)*(1-cos(Phi(METLV[0]) - Phi(goodMuo[0]))))
+
+#Event selections
+
+region Wele
+  select ALL
+  select Size(goodEle) == 1
+  select Size(goodMuo) >=0
+  reject Pt(goodMuo) > 20
+  select Et > 65
+  select MET > 65
+  select Mtele > 130
+  histo Wele-Mass, "W' Mass (GeV)", 50,0,500, m(We)
+  histo Wele-MT,   "Transverse Mass (GeV)", 50,0,500, Mtele 
+  histo e-Et, "transverse energy", 50,50,200, Et
+  
+
+region Wmuo
+  select ALL
+  select Size(goodMuo) ==1
+  select Size(goodEle) >= 1
+  select dR(goodEle[0] ,  goodMuo[0]) < 0.1
+  select MET > 55
+  select Mtmuo > 110 
+  histo Wmuo-Mass, "W' Mass (GeV)", 50,0,500, m(Wmu)
+  histo Wmuo-MT,   "Transverse Mass (GeV)", 50,0,500, Mtmuo
