@@ -1,0 +1,89 @@
+#info analysis
+#  title "Search for resonances decaying to triple W-boson final states in pp collisions at sqrt(s)=13TeV"
+#  experiment CMS
+#  id B2G-20-00
+#  publication 
+#  sqrtS 13.0
+#  lumi 137
+#  arXiv
+#  hepdata 
+#  doi 
+
+#info adl
+#  author Sezen Sekmen
+
+object muons
+  take Muon
+  select pT(Muon) > 55
+  select abs(Eta(Muon)) < 2.4
+  # isolation
+
+object electrons
+  take Electron
+  select pT(Electron) > 55
+  select abs(eta(Electron)) < 2.5
+  # isolation
+
+object leptons : Union(electrons, muons)
+
+
+object vetomuons
+  take Muon
+  select pT(Muon) > 20
+  select abs(Eta(Muon)) < 2.4
+  # isolation
+
+object vetoelectrons
+  take Electron
+  select pT(Electron) > 35
+  select abs(eta(Electron)) < 2.5
+  # isolation
+
+object vetoleptons : Union(vetoelectrons, vetomuons)
+
+object AK8jets
+  take Fatjet
+  select pT(Fatjet) > 200
+  select abs(eta) < 2.4
+
+object Whads
+  take AK8jets
+  select
+
+object Whads
+  take AK8jets
+  select
+
+object AK4jets
+  take Jet
+  reject dR(Jet, AK8jets) < 0.4
+  reject dR(Jet, leptons)
+
+object bjets
+  take AK4jets
+  select Btag(AK4jets) == 1
+
+object Wleps
+  take Wlep = leptons + METLV[0]
+  select pT(Wlep) > 200
+
+# DEFINITIONS
+
+define WspT = pT(Wlep[0]) + sum(pT(AK8jets))
+define Mjlv = m(Wlep + AK8jets[0])
+define Mjjlv = m(Wlep + AK8jets[0] + AK8jets[1])
+
+# EVENT SELECTION
+
+# preselection region
+region presel
+  select size(leptons) == 1
+  select size(vetoleptons) == 0
+  select size(electrons) == 1 ? MET > 80 : MET > 40
+  select size(AK8jets) >= 1
+  reject size(AK4jets) > 2
+  select size(bjets) == 0
+  select max(m(AK8jets)) > 60
+  select WspT > 1000
+  select size(AK8jets) == 1 ? Mjlv > 1100 : Mjjlv > 1100
+  

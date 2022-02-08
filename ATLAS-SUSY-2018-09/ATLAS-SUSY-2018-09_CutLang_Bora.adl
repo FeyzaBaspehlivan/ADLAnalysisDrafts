@@ -1,0 +1,117 @@
+#info analysis
+#  title "Search for squarks and gluinos in final states with same-sign leptons and jets using 139 fb−1 of data collected with the ATLAS detector"
+#  experiment ATLAS
+#  id ATLAS-SUSY-2018-09, CERN-EP-2019-161
+#  publication ...
+#  sqrtS 13.0
+#  lumi 139
+#  arXiv 1909.08457
+#  hepdata https://www.hepdata.net/record/ins1754675
+#  doi ...
+
+# info adl
+#   author Alavee Aziz, Bora Orgen
+#   date June 2020
+
+# OBJECT SELECTIONS
+object jets
+  take Jet
+  select pT(Jet) > 20  # min pt of jets 
+  select AbsEta(Jet) < 2.8  # max pseudorapidity of jets
+  
+object jets40
+  take jets
+  select pT(jets) > 40  # min pt of jets
+
+object jets25
+  take jets
+  select pT(jets) > 25  # min pt of jets
+
+object bjets
+  take jets
+  select BTag(jets) == 1
+  select AbsEta(jets) < 2.4
+
+object muons
+  take Muon
+  select pT(Muon) > 10.0
+  select AbsEta(Muon) < 2.5
+  
+object electrons
+  take ELE
+  select pT(ELE) > 10.0  # min pt of electrons
+  select AbsEta(ELE) < 2.47  # max pseudorapidity of electrons
+  select AbsEta(ELE) ][ 1.37 1.52  # exclude pseudorapidity of electrons (support section of ATLAS detector)
+
+object leptons : Union (electrons , muons)
+
+object leptonsplus 
+  take leptons
+  select q(leptons ) == 1
+#  select dR(leptons, jets) > min (0.4, 0.96 / pT(leptons) )
+
+object leptonsminus
+  take leptons
+  select q(leptons) == -1
+#  select dR(leptons, jets) > min (0.4, 0.96 / pT(leptons) )
+
+
+# VARIABLES
+
+define Meff = sum(pT(leptons)) + sum(pT(jets)) + MET
+define METoverMeff = MET / Meff
+define Zplus = leptonsplus[-1] leptonsplus[-1]
+define Zminus = leptonsminus[-2] leptonsminus[-2]
+
+
+# EVENT SELECTION
+
+# Pre-selection cuts
+region presel
+  select ALL
+  select size(electrons) >= 0
+  select size(muons) >= 0
+  select size(jets) >= 0
+  select size(leptons) >= 2
+  select pT(leptons[0]) > 20
+  select pT(leptons[1]) > 20
+  select Size(leptonsplus) >=2 OR Size(leptonsminus) >=2
+
+region Rpv2L
+  presel
+  select size(bjets) >= 0
+  select size(jets40) >= 6
+  select Meff > 2600
+
+region Rpv2LZEROb
+  presel
+  select size(bjets) == 0
+  select size(jets40) >= 6
+  select MET > 200
+  select Meff > 1000
+  select METoverMeff > 0.2
+
+region Rpv2LONEb
+  presel
+  select size(bjets) >= 1
+  select size(jets40) >= 6
+  select METoverMeff > 0.25
+
+region Rpc2LTWOb
+  presel
+  select size(bjets) >= 2
+  select size(jets25) >= 6
+  select MET > 300.0
+  select Meff > 1400.0
+  select METoverMeff > 0.14
+   
+region Rpc3LSSONEb
+  presel
+  select size(bjets) >= 1
+  select Size(leptonsplus) >=3 OR Size(leptonsminus) >=3   
+  select m(Zplus) ~= 91.2
+  select m(Zminus) ~= 91.2
+  reject m(Zplus)  [] 81 101
+  reject m(Zminus) [] 81 101
+  select METoverMeff > 0.14
+

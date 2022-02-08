@@ -1,3 +1,14 @@
+info analysis
+  experiment ATLAS
+  #title E6 
+  sqrtS 13
+  lumi 139
+  #publication Phys. Rev. D 100 (2019) 052013
+  #doi 10.1103/PhysRevD.100.052013
+  #arXiv 1906.05609v2
+
+
+
 TRGm = 1 #     muon Trigger Type: 0=dont trigger, 1=1st trigger (data) 2=2nd trigger (MC)
 TRGe = 0 # electron Trigger Type: 0=dont trigger, 1=1st trigger (data) 2=2nd trigger (MC)
 

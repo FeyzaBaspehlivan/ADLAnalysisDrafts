@@ -1,7 +1,9 @@
 #CLA ADL 1909.08457v2
-info analysisExample
-  title "Search for squarks and gluinos in final states with same-sign leptons and jets using 139 fb−1 of data collected with the ATLAS detector"
-  #by Sabri Vatansever
+info analysis
+  #title "Search for squarks and gluinos in final states with same-sign leptons and jets using 139 fb−1 of data collected with the ATLAS detector"
+
+#info adl
+  #author Sabri Vatansever
 
 #EventReco
 

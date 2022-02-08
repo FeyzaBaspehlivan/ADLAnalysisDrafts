@@ -1,0 +1,108 @@
+#info analysis
+#  title "Search for supersymmetry in pp collisions at sqrts = 13 TeV with 137fb^-1
+#  in final states with a single lepton using the sum of masses of large-radius jets.
+#  experiment CMS
+#  id SUS-19-007
+#  publication Phys. Rev. D 101, 052010 (2020)
+#  sqrtS 13.0
+#  lumi 137.0
+#  arXiv 1911.07558
+#  hepdata -
+#  doi 10.1103/PhysRevD.101.052010
+
+#info adl
+#  author Sezen Sekmen
+
+object jets
+  take Jet
+  select pT(Jet) > 30
+  select abs(Eta(Jet)) < 2.4
+
+object bjets
+  take jets
+  select BTag(Jet) == 1
+
+object largejets
+  take jets
+  select pT(jets) > 50
+
+object muons
+  take Muon
+  select pT(Muon) > 20
+  select abs(eta(Muon)) < 2.4
+  # FIXME: Modified mini isolation.
+
+object electrons
+  take Electron
+  select pT(Electron) > 20
+  select abs(eta(Electron)) < 2.5
+  # FIXME: Modified mini isolation.
+
+object leptons : Union(electrons, muons)
+
+define MJ = Sum( m(largejets) )
+define MTl = Sqrt( 2*pT(leptons[0]) * MET*(1-cos(phi(METLV[0]) - phi(leptons[0]) )))
+define ST = HT(jets) + pT(leptons[0])
+
+# Baseline selection
+region baseline
+  select Size(electrons) >= 0
+  select Size(muons    ) >= 0
+  select Size(leptons  ) == 1
+  select Size(largejets) >= 0
+  select ST > 500
+  select MET > 200
+  select MJ > 250
+  select (Size(jets) >= 6 AND MET > 500) OR (Size(jets) >= 7)
+  select Size(bjets) >= 1
+
+# signal region R4A
+region SR4A
+  baseline
+  select (MET > 500 and MJ [] 500 800) OR (MET [] 350 500 and MJ [] 450 650) OR (MET < 350 and MJ [] 400 500)
+  select MTl > 140
+  select Size(largejets) >= 1
+  bin MET [] 200 350 and Size(jets) <= 7 and Size(bjets) == 1
+  bin MET [] 200 350 and Size(jets) <= 7 and Size(bjets) == 2
+  bin MET [] 200 350 and Size(jets) <= 7 and Size(bjets) >= 3
+  bin MET [] 200 350 and Size(jets) >= 8 and Size(bjets) == 1
+  bin MET [] 200 350 and Size(jets) >= 8 and Size(bjets) == 2
+  bin MET [] 200 350 and Size(jets) >= 8 and Size(bjets) >= 3
+  bin MET [] 350 500 and Size(jets) <= 7 and Size(bjets) == 1
+  bin MET [] 350 500 and Size(jets) <= 7 and Size(bjets) == 2
+  bin MET [] 350 500 and Size(jets) <= 7 and Size(bjets) >= 3
+  bin MET [] 350 500 and Size(jets) >= 8 and Size(bjets) == 1
+  bin MET [] 350 500 and Size(jets) >= 8 and Size(bjets) == 2
+  bin MET [] 350 500 and Size(jets) >= 8 and Size(bjets) >= 3
+  bin MET > 500 and Size(jets) <= 7 and Size(bjets) == 1
+  bin MET > 500 and Size(jets) <= 7 and Size(bjets) == 2
+  bin MET > 500 and Size(jets) <= 7 and Size(bjets) >= 3
+  bin MET > 500 and Size(jets) >= 8 and Size(bjets) == 1
+  bin MET > 500 and Size(jets) >= 8 and Size(bjets) == 2
+  bin MET > 500 and Size(jets) >= 8 and Size(bjets) >= 3
+
+# signal region R4B
+region SR4B
+  baseline
+  select (MET > 500 and MJ > 800) OR (MET [] 350 500 and MJ > 650) OR (MET < 350 and MJ > 500)
+  select MTl > 140
+  select Size(largejets) >= 1
+  bin MET [] 200 350 and Size(jets) <= 7 and Size(bjets) == 1
+  bin MET [] 200 350 and Size(jets) <= 7 and Size(bjets) == 2
+  bin MET [] 200 350 and Size(jets) <= 7 and Size(bjets) >= 3
+  bin MET [] 200 350 and Size(jets) >= 8 and Size(bjets) == 1
+  bin MET [] 200 350 and Size(jets) >= 8 and Size(bjets) == 2
+  bin MET [] 200 350 and Size(jets) >= 8 and Size(bjets) >= 3
+  bin MET [] 350 500 and Size(jets) <= 7 and Size(bjets) == 1
+  bin MET [] 350 500 and Size(jets) <= 7 and Size(bjets) == 2
+  bin MET [] 350 500 and Size(jets) <= 7 and Size(bjets) >= 3
+  bin MET [] 350 500 and Size(jets) >= 8 and Size(bjets) == 1
+  bin MET [] 350 500 and Size(jets) >= 8 and Size(bjets) == 2
+  bin MET [] 350 500 and Size(jets) >= 8 and Size(bjets) >= 3
+  bin MET > 500 and Size(jets) <= 7 and Size(bjets) == 1
+  bin MET > 500 and Size(jets) <= 7 and Size(bjets) == 2
+  bin MET > 500 and Size(jets) <= 7 and Size(bjets) >= 3
+  bin MET > 500 and Size(jets) >= 8 and Size(bjets) == 1
+  bin MET > 500 and Size(jets) >= 8 and Size(bjets) == 2
+  bin MET > 500 and Size(jets) >= 8 and Size(bjets) >= 3
+

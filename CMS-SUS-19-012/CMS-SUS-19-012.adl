@@ -1,0 +1,122 @@
+info analysis
+  title "Search for electroweak production of charginos and neutralinos in proton-proton collisions at sqrt(s) = 13 TeV"
+  experiment CMS
+  id SUS-19-012
+  publication ...
+  sqrtS 13.0
+  lumi 137
+  arXiv 2106.14246
+  hepdata -
+  doi ...
+
+info adl
+  author Sezen Sekmen
+  date 18 May 2021
+
+# OBJECT SELECTION
+
+object muons
+  take Muon
+  select pT > 10
+  select abs(eta) < 2.4
+  select vetoID == 1
+  define iso = sum(pt(PF)) within dR / pT
+  # dR = 0.2 for pT < 50
+  # dR = 10 GeV / pT for pT [] 50 200
+  # dR = 0.5 for pT > 200
+  select iso < 0.4
+
+object electrons
+  take Electron
+  select pT > 10
+  select abs(eta) < 2.5
+  # shower shape
+  # MVA based on shower shape and track quality
+  # veto electrons matched to a SV consistent with a photon conversion or have a missing hit in tracker
+  define d0 < 0.5
+  define dz < 1
+  ### select cutbasedvetoID == 1
+  define iso = sum(pt(PF)) within dR / pT
+  # dR = 0.2 for pT < 50
+  # dR = 10 GeV / pT for pT [] 50 200
+  # dR = 0.5 for pT > 200
+  select iso < 0.4
+
+object taus
+  take Tau
+  select pT > 20
+  select abs(eta) < 2.3
+
+object looseleptons
+  take union(electrons, muons)
+
+object jets
+  take AK4jets
+  select pT > 25
+  select abs(eta) < 2.4
+  select dR(jets, looseleptons) > 0.4
+
+object bjets
+  take jets
+  select DeepCSVtight == 1
+  # eff: 0.5 for b jets, misid: 0.024, 0.001 for c jets, light jets
+
+object isotracks
+  take Tracks
+  # how does one do this? by dR matching? Or is the information in the ntuple?
+  select matchedtoisoelectron == 0
+  select matchedtoisomuon == 0
+  define iso = sum(pT(all charged particles in dR<0.3)) / pT
+  select iselectron == 1 or ismuon == 1 ? iso < 0.2 : iso < 0.1
+  select iselectron == 1 or ismuon == 1 ? pT < 5 : pT < 10
+  select abs(eta) < 2.4
+  define MTt = sqrt( 2*pT * MET.MET*(1-cos(MET.phi - phi )))
+  select MTt < 100
+
+object photons
+  take Photon
+  select abs(eta) < 2.5
+  select vetoID == 1
+  # For isolation below, are we not dividing by E?
+  # The "..." depends on detector geometry.
+  # Details here: https://arxiv.org/abs/1502.02702
+  select sumCH = sum(E(charged hadrons in dR<0.3)) < ...
+  select sumNH = sum(E(neutral hadrons in dR<0.3)) < ...
+  select sumEM = sum(E(EM particles in dR<0.3)) < ...
+
+# VARIABLES
+
+define HT = sum(pT(jets))
+define MHT = -sum(jets5)
+define HT5 = sum(pT(jets5))
+
+# EVENT SELECTION
+
+region 2LSS
+
+
+region 3LA
+
+region 3LB
+
+region 3LC
+
+region 3LD
+
+region 3LE
+
+region 3LF
+
+region 4LG
+
+region 4LH
+
+region 4LI
+
+region 4LJ
+
+region 4LK
+
+
+
+

@@ -1,7 +1,8 @@
 info analysis
-  experiment ATLAS
   #title Search for new resonances in mass distributions of
   # jet pairs using 139 fb-1 of pp collisions at sqrt(s) = 13 TeV with the ATLAS detector
+  experiment ATLAS
+  id EXOT-2019-03
   sqrtS 13
   lumi 139
   #arXiv 1910.08447

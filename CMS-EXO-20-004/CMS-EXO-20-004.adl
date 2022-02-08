@@ -1,0 +1,105 @@
+info analysis
+  title "Search for new particles in events with energetic jets and large missing transverse momentum in proton-proton collisions at sqrt(s) = 13 TeV"
+  experiment CMS
+  id EXO-20-004
+  publication JHEP 11 (2021) 153
+  sqrtS 13.0
+  lumi 101fb-1
+  arXiv 2107.13021
+  hepdata https://www.hepdata.net/record/ins1894408
+  doi 10.1007/JHEP11(2021)153
+
+info adl
+  author Sezen Sekmen
+
+object vertices
+  take sort(vertex, sumpT^2 of phys objects, desc)
+
+object AK4jets
+  take AK4jet
+  select pT > 30
+  select abs(Eta) < 2.4
+
+object bjets
+  take AK4jet
+  select pT > 20
+  select abs(Eta) < 2.4
+  select btagdeepCSVmedium == 1
+
+object AK8jets
+  take AK8jet
+  select pT > 30
+  select abs(Eta) < 2.4
+
+object electrons
+  take electron
+  select pT > 10
+  select abs(Eta) < 2.5
+
+object muons
+  take muon
+  select pT > 10
+  select abs(Eta) < 2.4
+
+object taus
+  take tauhadronic
+  select pT > 18
+  select abs(Eta) < 2.3
+
+object leptons
+  take union(electrons, muons, taus)
+
+object photons
+  take photon
+  select pT > 15 
+  select abs(Eta) < 2.5
+
+# VARIABLE DEFIITIONS
+define Ulep = MET + leptons[0]
+define Upho = MET + photons[0]
+
+# EVENT SELECTION
+
+region SRbaseline
+  select size(vertices) >= 1
+  select HLTMET > 120
+  select MET > 250
+  select n(leptons) == 0
+  select n(photons) == 0
+  select n(bjets) == 0
+  select abs(PFMET / CaloMET - 1) < 0.5
+  select dphi(PFMET, chargedMET) < 2
+  select dphi(MET, AK4jets[?]) > 0.5
+  # some selection for 2018 data cleaning
+
+region SRmonoV
+  select SRbaseline
+  select pT(AK8jets[0]) > 250
+  select deepAK8W(AK8jets[0]) == 1
+  select mSD(AK8jets[0]) [] 65 120
+  
+region SRmonojet
+  select SRbaseline
+  select pT(AK4jets[0]) > 100
+  select 
+
+region CRlepbaseline
+  select size(vertices) >= 1
+  select HLTMET > 120
+  select MET > 250
+  select n(leptons) == 0
+  select n(photons) == 0
+  select n(bjets) == 0
+  select abs(PFMET / CaloMET - 1) < 0.5
+  select dphi(pfMET, chargedMET) < 2
+
+region CRlepmonoV
+  select SRbaseline
+  select pT(AK8jets[0]) > 250
+  select deepAK8W(AK8jets[0]) == 1
+  select mSD(AK8jets[0]) [] 65 120
+  
+region CRlepmonojet
+  select SRbaseline
+  select pT(AK4jets[0]) > 100
+

@@ -1,8 +1,8 @@
 info analysis
-  experiment ATLAS
-  #id
   #title Search for a heavy charged boson in events with a charged lepton and missing transverse momentum
   #      from pp collisions at sqrt(s) = 13 TeV with the ATLAS detector  
+  experiment ATLAS
+  id EXOT-2018-30
   sqrtS 13
   lumi 139
   #publication Phys. Rev. D 100 (2019) 052013

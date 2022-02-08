@@ -1,0 +1,80 @@
+#info analysis
+  title "A multi-dimensional search for new heavy resonances decaying to boosted WW, Wz, ZZ, WH or ZH boson pairs in the all-jets final state at 13 TeV"
+  experiment CMS
+  id B2G-20-009
+#  publication 
+  sqrtS 13.0
+  lumi 138
+#  arXiv   2201.08476
+#  hepdata 
+#  doi 
+
+#info adl
+#  author Sezen Sekmen
+
+object electrons
+  take Electron
+  select pT > 35
+  select abs(dta) > 2.5
+  select HEEPv7.0 == 1
+
+object muons
+  take Muon
+  select pT > 30
+  select abs(dta) > 2.4
+  select highPtID == 1
+  select relativeiso < 0.05
+
+object ak8jets
+  take AK8jet
+  select pT > 200
+  select abs(eta) > 2.4
+  reject dR(ak8jet, muon) < 0.8
+  reject dR(ak8jet, electron) < 0.8
+  select mass [] 55 215
+  select ln(mass^2 / pT^2) < -1.8
+
+object vbfjets
+  take AK4jet
+  select pT > 30
+  select abs(eta) < 5
+* reject dR(AK4jet, AK8jet) < 1.2 
+
+# EVENT SELECTION
+
+# MET filters
+region METfilters
+  select goodVertices == 1
+  select globalSuperTightHalo2016Filter == 1
+  select HBHENoiseFilter == 1
+  select HBHENoiseIsoFilter == 1
+  select EcalDeadCellTriggerPrimitiveFilter == 1
+  select BadPFMuonFilter == 1
+  select eeBadScFilter == 1 # only for data
+  select ecalBadCalibReducedMINIAODFilter == 1 # not applied to 2016
+
+# preselection region
+region presel
+  select METfilters
+  select size(vertices) > 0
+  select size(ak8jets) == 2
+  select deta(ak8jets[0], ak8jets[1]) < 1.3
+  select m(ak8jets[0], ak8jets[1]) > 1246
+  select 
+
+region VBF
+  select presel
+  select size(vbfjets) >= 2
+  select deta(vbfjets[0], vbfjets[1]) > 4.5
+  select m(vbfjets[0], vbfjets[1]) > 800
+
+region ggFDY
+  select presel
+* reject VBF
+
+# Implement a prioratization selection
+# An event falls in the next category if it did not fall in the previous category
+
+
+
+

@@ -1,7 +1,8 @@
 info analysis
-  experiment ATLAS
   #title Search for high-mass dilepton resonances using 139 fb^-1 of pp collision data 
   #      collected at sqrt(s) = 13 TeV with the ATLAS detector
+  experiment ATLAS
+  id EXOT-2018-08
   sqrtS 13
   lumi 139
   #publication Phys. Lett. B 796 (2019) 68

@@ -1,0 +1,120 @@
+#info analysis
+#  title "Search for a W’ boson decaying to a vector-like quark and a top or bottom quark in 
+the all-jets final state (Full Run 2)"
+#  experiment CMS
+#  id B2G-20-002
+#  publication 
+#  sqrtS 13.0
+#  lumi 137
+#  arXiv   
+#  hepdata 
+#  doi 
+
+#info adl
+#  author Sezen Sekmen
+
+object topjets
+  take AK8Jet
+  select pT(Jet) > 500
+  select abs(Eta(Jet)) < 2.4
+  select imagetopMD > 0.9
+  select massSD [] 140 220
+
+object looseTop
+  take AK8Jet
+  select pT(Jet) > 500
+  select abs(Eta(Jet)) < 2.4
+  select imagetopMD [] 0.0 0.3
+  select massSD [] 30 65
+
+object mediumTop
+  take AK8Jet
+  select pT(Jet) > 500
+  select abs(Eta(Jet)) < 2.4
+  select imagetopMD [] 0.3 0.9
+  select massSD ???
+
+object Hjets
+  take AK8Jet
+  select pT(Jet) > 400
+  select abs(Eta(Jet)) < 2.4
+  select massSD [] 105 140
+  select Dbtag > 0.6
+  select imagetopMD < 0.95
+
+object looseHiggs
+  take AK8Jet
+  select pT(Jet) > 400
+  select abs(Eta(Jet)) < 2.4
+  select massSD [] 5 30
+  select Dbtag [] 0.6 1.0
+  select imagetopMD < 0.95
+
+object mediumHiggs
+  take AK8Jet
+  select pT(Jet) > 400
+  select abs(Eta(Jet)) < 2.4
+  select massSD [] 5 30
+  select Dbtag [] 0.0 0.6
+  select imagetopMD < 0.95
+
+object Zjets
+  take AK8Jet
+  select pT(Jet) > 400
+  select abs(Eta(Jet)) < 2.4
+  select massSD [] 65 105
+  select tau21 < 0.40 (2016), 0.45 (2017, 2018)
+
+object looseZ
+  take AK8Jet
+  select pT(Jet) > 400
+  select abs(Eta(Jet)) < 2.4
+  select massSD [] 5 30
+  select tau21 [] 0.6 1.0
+
+object mediumZ
+  take AK8Jet
+  select pT(Jet) > 400
+  select abs(Eta(Jet)) < 2.4
+  select massSD [] 5 30
+  select tau21 [] 0.45 0.6
+
+object bjets
+  take Jet
+  select pT(Jet) > 250
+  select abs(Eta) < 2.4
+  select tightID == 1
+  select DeepFlavor > 0.393 (2016), 0.3033 (2017), 0.2722 (2018)
+  select dR(jets, ) > 1.4
+
+object vetomuons
+  take Muon
+  select pT(Muon) > 10
+  select abs(Eta(Muon)) < 2.4
+  select abs(d0(Muon)) < 2
+  # relative isolation
+
+object vetoelectrons
+  take Electron
+  select pT(Electron) > 10
+  select abs(eta(Electron)) < 2.4
+  select abs(d0(Electron)) < 2
+  # relative isolation
+
+object vetophotons
+  take Photon
+  select pT(Photon) > 100
+  select abs(eta(Photon)) < 
+
+# EVENT SELECTION
+
+# preselection region
+region presel
+  select size(bjets) == 1
+  select size(topjets) == 1
+  select size(Hjets) + size(Zjets) == 1
+  select size(Hjets) == 1 ? dR(topjets[0], Hjets[0]) > 1.6 : dR(topjets[0], Zjets[0]) > 1.6
+  select dR(bjets[0], topjets[0]) > 1.4
+  select size(Hjets) == 1 ? dR(bjets[0], Hjets[0]) > 1.4 : dR(bjets[0], Zjets[0]) > 1.4
+
+

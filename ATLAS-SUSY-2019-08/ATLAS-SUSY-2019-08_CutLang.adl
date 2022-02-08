@@ -1,0 +1,118 @@
+#info analysis
+#  title "Search for direct production of electroweakinos in final states with one lepton, missing transverse momentum and a Higgs boson decaying into two b-jets in (pp) collisions at s√=13 TeV with the ATLAS detector"
+#  experiment ATLAS
+#  id ATLAS-SUSY-2019-08, CERN-EP-2019-188
+#  publication ...
+#  sqrtS 13.0
+#  lumi 139
+#  arXiv 1909.09226
+#  hepdata ...
+#  doi ...
+
+#info adl
+#  author Sezen Sekmen
+#  date 4 June 2020
+
+# OBJECT SELECTIONS
+
+object jetsbaseline
+  take Jet
+  select pT > 20
+  select abs(eta) < 4.5
+
+object jetsbaseline
+  take Jet
+  select pT > 20
+  select abs(eta) < 4.5
+  
+object jets
+  take Jet
+  select pT > 30
+  select abs(eta) < 2.8
+  reject dR(Jet, muons) < 0.2
+
+object jets
+  take Jet j
+  select pT > 30
+  select abs(eta) < 2.8
+  reject dR(j, muons) < 0.2
+
+object bjets
+  take Jet
+  select pT > 20
+  select abs(eta) < 2.5
+  select BTag == 1 # WP provides 77% eff and curious light and c-jet rejection rates
+
+object muons
+  take Muon
+  select pT(Muon) > 10.0
+  select AbsEta(Muon) < 2.5
+  
+object electrons
+  take Electron
+  select pT > 7
+  select abs(eta) < 2.47
+  select AbsEta(ELE) ][ 1.37 1.52  # exclude pseudorapidity of electrons (support section of ATLAS detector)
+
+object leptons : Union (electrons , muons)
+
+object leptonsplus 
+  take leptons
+  select q(leptons ) == 1
+#  select dR(leptons, jets) > min (0.4, 0.96 / pT(leptons) )
+
+object leptonsminus
+  take leptons
+  select q(leptons) == -1
+#  select dR(leptons, jets) > min (0.4, 0.96 / pT(leptons) )
+
+# VARIABLES
+
+define mbb = m(bjets[0] + bjets[1])
+define mlb = m(leptons[0] + bjets[0])
+define MTl = Sqrt( 2*pT(leptons[0]) * MET*(1-cos(phi(METLV[0]) - phi(leptons[0]) )))
+define MCT = 2 * pT(bjets[0]) * pT(bjets[1]) * (1 + cos( dPhi( bjets[0], bjets[1] )))
+
+# EVENT SELECTION
+
+# Pre-selection cuts
+region preselection
+  select size(vertices) >= 1
+  select size(leptons) == 1
+  select size(jets) [] 2 3
+  select size(bjets) == 2
+  select mbb [] 100 140
+
+region SRLMexcl
+  preselection
+  select MT [] 100 160
+  select MCT [] 180 230
+  
+region SRLMdisc
+  preselection
+  select MT > 100
+  select MCT > 180
+
+region SRMMexcl
+  preselection
+  select MT [] 160 240
+  select MCT [] 230 280
+  
+region SRMMdisc
+  preselection
+  select MT > 160
+  select MCT > 180
+
+region SRHMexcl
+  preselection
+  select mlb > 120
+  select MT > 240
+  select MCT > 280
+  
+region SRHMdisc
+  preselection
+  select mlb > 120
+  select MT > 240
+  select MCT > 180
+
+
