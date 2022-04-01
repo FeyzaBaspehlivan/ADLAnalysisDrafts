@@ -1,0 +1,262 @@
+#info analysis
+# Details about experiment
+#  experiment CMS
+#  id B2G-16-024
+#  title Search for pair production of vector-like T and B quarks in single-lepton final states using boosted jet substructure in proton-proton collisions at sqrts = 13 TeV
+#  publication 
+#  sqrtS 13.0
+#  lumi 2.6 fb
+#  arXiv 1706.03408
+#  hepdata 
+#  doi 
+
+### OBJECT SELECTIONS
+
+# AK4 jets
+object AK4jets
+  take Jet
+  select pT(Jet) > 30
+  select abs(Eta(Jet)) < 2.5 # for HT, it's mentioned that eta < 2.4.  Which is correct?
+
+# AK8 jets
+object AK8jets
+  take FJET
+  select pT(FJET) > 200
+  select abs(Eta(FJET)) < 2.5
+
+# b-tagged jets - medium
+object bjetsMedium
+  take AK4jets
+  select btagDeepB(AK4jets) > 0.4941
+
+# W jets - mass-tagged
+object WjetsMasstag
+  take AK8jets
+  select msoftdrop(AK8jets) [] 65 105
+
+# W jets - W-tagged
+object Wjets
+  take WjetsMasstag
+  select tau2(WjetsMasstag) / tau1(WjetsMasstag) <= 0.4
+
+# W jets - anti-tagged
+object WjetsAntitag
+  take WjetsMasstag
+  select tau2(WjetsMasstag) / tau1(WjetsMasstag) > 0.4
+
+# top jets - mass-tagged
+object topjetsMasstag
+  take AK8jets
+  select pT(AK8jets) > 400
+  select msoftdrop(AK8jets) [] 105 210
+
+# top jets - mass-tagged, subjet b-antitagged
+object topjetsMasstag0b
+  take topjetsMasstag
+  select btagDeepB(topjetsMasstag) < 0.1522
+
+# top jets - top-tagged, subjet b-tagged
+object topjets
+  take topjetsMasstag
+  select btagDeepB(topjetsMasstag) >= 0.1522
+  select tau3(topjetsMasstag) / tau2(topjetsMasstag) < 0.46   ##########put this into FATJET
+
+# top jets - anti-tagged
+object topjetsAntitag : topjetsMasstag
+  select btagDeepB(topjetsMasstag) < 0.1522
+  select tau3(topjetsMasstag) / tau2(topjetsMasstag) >= 0.46
+
+# Higgs with exactly 1 b-tagged subjet
+object Higgsb
+  take Higgs
+  select .... == 1
+
+# Higgs with exactly 2 b-tagged subjet
+object Higgsbb
+  take Higgs
+  select .... == 2
+
+# muons
+object muons
+  take Muon
+  select pT(Muon) > 47
+  select Abs(Eta(Muon)) < 2.1
+#  select miniPFRelIsoAll(Muon) < 0.15
+#  select abs(dxy(Muon)) < 0.05
+#  select abs(dz(Muon)) < 0.1
+
+# electrons
+object electrons
+  take Electron
+  select pT(Electron) > 50
+  select Abs(Eta(Electron)) < 2.4
+  select Abs(Eta(Electron)) ][ 1.442 1.556
+#  select miniPFRelIsoAll(Electron) < 0.1
+#  select abs(dxy(Electron)) < 0.05
+#  select abs(dz(Electron)) < 0.1
+
+# taus - veto
+object tausVeto
+  take Tau
+  select pT(Tau) > 18
+  select Abs(Eta(Tau)) < 2.5
+  select dMVAnewDM2017v2(Tau) >= 4
+
+# photons - select
+object photons
+  take Photon
+  select pT(Photon) > 80
+  select Abs(Eta(Photon)) < 2.5
+
+
+### EVENT VARIABLES
+
+define ST = MET + pT(leptons[0]) + fHT(AK4jets)
+define minmlb = min(m(leptonsW[0], bjets))
+define minmlj = min(m(leptonsW[0], AK4jets))
+
+
+# EVENT SELECTION
+
+# Boosted Higgs regions
+region boostedH
+  select ALL   # This is only to see the initial event count             
+  select size(leptonsH) == 1
+  select size(AK4jets) >= 3 
+  select size(AK8jets) >= 2 
+  select size(electronsH) == 1 ? pT(AK8jets[0]) >= 250 : ALL
+  select size(electronsH) == 1 ? pT(AK4jets[1]) >= 70 : ALL
+  select ST > 800
+  select size(bjets) >= 1
+  
+region boostedH2b
+  boostedH
+  select size(Higgsbb) >= 1
+
+region boostedH1b
+  boostedH
+  reject size(Higgsbb) >= 1 # remove the overlap with boostedH2b
+  select size(Higgsb) >= 1
+
+# Boosted W regions
+region boostedW
+  select size(leptonsW) == 1
+  select size(Higgs) == 0
+  select size(vetoleptons) == 0
+  select size(AK4jets) >= 3 
+  select pT(AK4jets[0]) > 300
+  select pT(AK4jets[1]) > 150
+  select pT(AK4jets[2]) > 100
+  select MET > 75
+  select dR(leptonsW[0], AK4jets[1]) > 1
+#  select size(AK8jets) >= 2 
+#  select size(electronsH) == 1 ? pT(AK8jets[0]) >= 250 : ALL
+#  select size(electronsH) == 1 ? pT(AK4jets[1]) >= 70 : ALL
+#  select ST > 800
+#  select size(bjets) >= 1
+
+region boostedW1
+  boostedW
+  select size(electronsW) == 1
+  select size(bjets) == 0
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+
+region boostedW2
+  boostedW
+  select size(electronsW) == 1
+  select size(bjets) == 0
+  select size(Wjets) >= 1
+
+region boostedW3
+  boostedW
+  select size(electronsW) == 1
+  select size(bjets) == 1
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+
+region boostedW4
+  boostedW
+  select size(electronsW) == 1
+  select size(bjets) == 1
+  select size(Wjets) >= 1
+
+region boostedW5
+  boostedW
+  select size(electronsW) == 1
+  select size(bjets) == 2
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+
+region boostedW6
+  boostedW
+  select size(electronsW) == 1
+  select size(bjets) == 2
+  select size(Wjets) >= 1
+
+region boostedW7
+  boostedW
+  select size(electronsW) == 1
+  select size(bjets) >= 3
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+
+region boostedW8
+  boostedW
+  select size(electronsW) == 1
+  select size(bjets) >= 3
+  select size(Wjets) >= 1
+
+region boostedW9
+  boostedW
+  select size(muonsW) == 1
+  select size(bjets) == 0
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+
+region boostedW10
+  boostedW
+  select size(muonsW) == 1
+  select size(bjets) == 0
+  select size(Wjets) >= 1
+
+region boostedW11
+  boostedW
+  select size(muonsW) == 1
+  select size(bjets) == 1
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+
+region boostedW12
+  boostedW
+  select size(muonsW) == 1
+  select size(bjets) == 1
+  select size(Wjets) >= 1
+
+region boostedW13
+  boostedW
+  select size(muonsW) == 1
+  select size(bjets) == 2
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+
+region boostedW14
+  boostedW
+  select size(muonsW) == 1
+  select size(bjets) == 2
+  select size(Wjets) >= 1
+
+region boostedW15
+  boostedW
+  select size(muonsW) == 1
+  select size(bjets) >= 3
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+
+region boostedW16
+  boostedW
+  select size(muonsW) == 1
+  select size(bjets) >= 3
+  select size(Wjets) >= 1
+
+
