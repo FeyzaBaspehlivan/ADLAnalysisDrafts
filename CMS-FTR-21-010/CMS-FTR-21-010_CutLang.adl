@@ -1,0 +1,151 @@
+# ANALYSIS INFORMATION
+info analysis
+  title "Non-resonant ttHH search in the single lepton channel for H->bb at HL-LHC"
+  experiment CMS
+  id FTR-21-010
+  publication -
+  sqrtS 14.0
+  lumi 3000
+  arXiv -
+  hepdata -
+  doi -
+
+# OBJECTS
+object jets
+  take JetPUPPILoose  #j
+  select pT > 30  
+  select abs(Eta) < 3  # how about < 3.5 ??
+
+object bjets
+  take JetPUPPILoose
+  select pT > 30
+  select abs(Eta) < 3.0 # how about < 3.5 ??
+  select BTag == 1
+
+object noBjets
+  take jets
+  select BTag != 1
+
+object muons
+  take MuonMedium    
+  select pT >= 30
+  select abs(Eta) < 3.0
+
+object vetoMuons
+   take MuonMedium  # are we really vetoing medium??
+   select pt [] 15 30     
+
+object electrons
+  take ElectronMedium
+  select pT > 30
+  select abs(Eta) < 3.0
+
+object vetoElectrons
+   take ElectronMedium
+   select pT [] 20 30
+
+object leptons
+  take union(electrons, muons)
+
+object vetoLeptons
+  take union(vetoElectrons, vetoMuons)
+
+object met
+  take PuppiMissingET_MET
+
+# EVENT VARIABLES
+define jetHT = sum(pt(jets))
+define bjetHT = sum(pt(bjets))
+define jetMass = m(LVsum(jets))  # to do SS. Consider LV! 
+# When you write a collection without an index, e.g. when you write jets rather than jets[0], this implies a loop over the collection.
+define bjetMass = m(LVsum(bjets)) 
+define jetAvgMass = avg(m(jets))   # to do SS, apply mean.  
+define bjetAvgMass = avg(m(bjets))
+define bjetAvgMassSqr = bjetAvgMass^2
+
+define jjMinDeltaR = min(dR(jets, jets))  # between any two jets  to do SS, check.
+# numpy style : min(dR(product(jets, jets)))
+define bbMinDeltaR = min(dR(bjets, bjets))  # between any two bjets. Check whether dR is computed correctly between objects from the same collection.
+define jjAvgDeltaR = avg(dR(jets, jets))
+
+define bbAvgDeltaR = avg(dR(bjets, bjets))
+define jjAvgDeltaEta = avg(dEta(jets, jets))
+define bbAvgDeltaEta = avg(dEta(bjets, bjets))
+define bbMaxDeltaEta = max(dEta(bjets, bjets))   
+
+define ljMinDeltaR = min(dR(leptons, jets)) 
+define lbMinDeltaR = min(dR(leptons, bjets)) 
+
+define mZ = 92.0
+define mW = 81.0
+define mHiggs = 125.0
+
+# chi2ZZb3
+define Z1b3 = bjets[-1] + bjets[-1]
+define Z2b3 = bjets[-2] + noBjets[-1]
+define chi2ZZb3 = (m(Z1b3) - mZ)^2 + (m(Z2b3) - mZ)^2
+# chi2ZZb4
+define Z1b4 = bjets[-1] + bjets[-1]
+define Z2b4 = bjets[-2] + bjets[-2]
+define chi2ZZb4 = (m(Z1b4) - mZ)^2 + (m(Z2b4) - mZ)^2
+
+# chi2HHb3
+define H1b3 = bjets[-1] + bjets[-1]
+define H2b3 = bjets[-2] + noBjets[-1]
+define chi2HHb3 = (m(H1b3) - mH)^2 + (m(H2b3) - mH)^2
+# chi2HHb4
+define H1b4 = bjets[-1] + bjets[-1]
+define H2b4 = bjets[-2] + bjets[-2]
+define chi2HHb4 = (m(H1b4) - mH)^2 + (m(H2b4) - mH)^2
+
+# chi2ZHb3 - optional
+define Zb3a = bjets[-1] + bjets[-1]
+define Hb3a = bjets[-2] + noBjets[-1]
+define Zb3b = bjets[-1] + noBjets[-1]
+define Hb3b = bjets[-2] + bjets[-1]
+# Not sure how to define the chi2 in this case conceptually and technically.
+# Maybe define 2 chi2s for ZbbHbj and ZbjHbb and take the minimum?
+define chi2ZHb3a = (m(Zb3a) - mZ)^2 + (m(Hb3a) - mH)^2
+define chi2ZHb3b = (m(Zb3b) - mZ)^2 + (m(Hb3b) - mH)^2
+define chi2ZHb3 = min(chi2ZHb3a, chi2ZHb3b)
+# chi2ZHb4 - optional
+define Zb4 = bjets[-1] + bjets[-1]
+define Hb4 = bjets[-2] + bjets[-2]
+define chiZHb4 = (m(Zb4) - mZ)^2 + (m(Hb4) - mH)^2
+
+# W mass chi2
+define hadW = noBjets[-1] + noBjets[-1]
+define chi2HadW = (m(hadW) - mW)^2
+
+# EVENT SELECTION
+region baseline 
+  select size(leptons) == 1 
+  select size(vetoLeptons) == 0 
+  select size(jets) >= 4 
+  select size(bjets) >= 3 
+  select met > 20
+
+region bjets3 
+  baseline 
+  select size(bjets) == 3 
+  select chi2ZZb3 ~= 0 
+  select chi2ZHb3a ~= 0 
+  select chi2ZHb3b ~= 0 
+  select chi2HHb3 ~= 0 
+  save DNNinputs csv pT(jets[0]) pT(jets[1]) pT(jets[2]) pT(jets[3]) pT(jets[4]) pT(jets[5]) pT(bjets[0]) pT(bjets[1]) pT(bjets[2]) pT(bjets[3]) pT(bjets[4]) pT(bjets[5]) Eta(jets[0]) Eta(jets[1]) Eta(jets[2]) Eta(jets[3]) Eta(jets[4]) Eta(jets[5]) Eta(bjets[0]) Eta(bjets[1]) Eta(bjets[2]) Eta(bjets[3]) Eta(bjets[4]) Eta(bjets[5]) jetHT bjetHT jetMass bjetMass jetAvgMass bjetAvgMass bjetAvgMassSqr jjMinDeltaR bbMinDeltaR jjAvgDeltaR bbAvgDeltaR jjAvgDeltaEta bbAvgDeltaEta bbMaxDeltaEta ljMinDeltaR lbMinDeltaR m(hadW) m(Z1b3) m(Z2b3) m(H1b3) m(H2b3) chi2HadW chi2ZZb3 chi2ZHb3 chi2HHb3
+
+region bjets45
+  baseline
+  select size(bjets) [] 4 5
+  select chi2ZZb4 ~= 0
+  select chi2ZHb4 ~= 0
+  select chi2HHb4 ~= 0
+  save DNNinputs csv pT(jets[0]) pT(jets[1]) pT(jets[2]) pT(jets[3]) pT(jets[4]) pT(jets[5]) pT(bjets[0]) pT(bjets[1]) pT(bjets[2]) pT(bjets[3]) pT(bjets[4]) pT(bjets[5]) Eta(jets[0]) Eta(jets[1]) Eta(jets[2]) Eta(jets[3]) Eta(jets[4]) Eta(jets[5]) Eta(bjets[0]) Eta(bjets[1]) Eta(bjets[2]) Eta(bjets[3]) Eta(bjets[4]) Eta(bjets[5]) jetHT bjetHT jetMass bjetMass jetAvgMass bjetAvgMass bjetAvgMassSqr jjMinDeltaR bbMinDeltaR jjAvgDeltaR bbAvgDeltaR jjAvgDeltaEta bbAvgDeltaEta bbMaxDeltaEta ljMinDeltaR lbMinDeltaR m(hadW) m(Z1b4) m(Z2b4) m(H1b4) m(H2b4) chi2HadW chi2ZZb4 chi2ZHb4 chi2HHb4
+
+region bjets6
+  baseline
+  select size(bjets) >= 6
+  select chi2ZZb4 ~= 0
+  select chi2ZHb4 ~= 0
+  select chi2HHb4 ~= 0
+  save DNNinputs csv pT(jets[0]) pT(jets[1]) pT(jets[2]) pT(jets[3]) pT(jets[4]) pT(jets[5]) pT(bjets[0]) pT(bjets[1]) pT(bjets[2]) pT(bjets[3]) pT(bjets[4]) pT(bjets[5]) Eta(jets[0]) Eta(jets[1]) Eta(jets[2]) Eta(jets[3]) Eta(jets[4]) Eta(jets[5]) Eta(bjets[0]) Eta(bjets[1]) Eta(bjets[2]) Eta(bjets[3]) Eta(bjets[4]) Eta(bjets[5]) jetHT bjetHT jetMass bjetMass jetAvgMass bjetAvgMass bjetAvgMassSqr jjMinDeltaR bbMinDeltaR jjAvgDeltaR bbAvgDeltaR jjAvgDeltaEta bbAvgDeltaEta bbMaxDeltaEta ljMinDeltaR lbMinDeltaR m(hadW) m(Z1b4) m(Z2b4) m(H1b4) m(H2b4) chi2HadW chi2ZZb4 chi2ZHb4 chi2HHb4
