@@ -1,0 +1,92 @@
+#info analysis
+#  title "Measurement of the t t-bar production cross section using events with one lepton and at least one jet in pp collisions at sqrt(s) = 13 TeV"
+#  experiment CMS
+#  id TOP-16-006
+#  publication JHEP 09 (2017) 051
+#  sqrtS 13.0
+#  lumi 2.2 ifb
+#  arXiv 1701.06228
+#  hepdata ...
+#  doi 10.1007/JHEP09(2017)051
+
+info adl
+  author S. Sekmen
+
+# OBJECT SELECTION
+
+object electrons
+  take Ele
+  select pT(Ele) > 30
+  select abs(eta(Ele)) < 2.1 and not abs(eta(Ele)) [] 1.4442 1.5660
+  #select ICH + max(0, IN + IPH - 0.5*ICHPU) / pT < 0.15
+  # IK, K = charged, neutral, photon, coming from PU, within R < 0.4
+  select reliso04all(Ele) < 0.15 # missing in POET!
+  select istight(Ele) == 1
+  select SIP3d(Ele) < 4 # missing in POET!
+
+object vetoelectrons
+  take Ele
+  select pT(Ele) > 15
+  select pT(Ele) - pT(electrons) != 0 # need syntax - any, all? sum?
+  select abs(eta(Ele)) < 2.1
+  #select ICH + max(0, IN + IPH - 0.5*ICHPU) / pT < 0.25
+  # IK, K = charged, neutral, photon, coming from PU, within R < 0.4
+  select reliso04all(Ele) < 0.25 # missing in POET!
+  select softID(Ele) == 1
+
+object muons
+  take Muo
+  select pT(Muo) > 30
+  select abs(eta(Muo)) < 2.1
+  #select ICH + max(0, IN + IPH - 0.5*ICHPU) / pT < 0.15
+  # IK, K = charged, neutral, photon, coming from PU, within R < 0.4
+  select reliso04all(Muo) < 0.15 
+  select tightID(Muo) == 1
+  select SIP3d(Muo) < 4 # missing in POET! 
+
+object vetomuons
+  take Muo
+  select pT(Muo) > 10
+  select pT(Muo) - pT(muons) != 0 # need syntax - any, all? sum?
+  select abs(eta(Muo)) < 2.1
+  #select ICH + max(0, IN + IPH - 0.5*ICHPU) / pT < 0.25
+  # IK, K = charged, neutral, photon, coming from PU, within R < 0.4
+  select reliso04all(Muo) < 0.25 
+  select mediumID(Muo) == 1
+
+object leptons 
+  take union(electrons, muons)
+
+object vetoleptons 
+  take union(vetoelectrons, vetomuons)
+
+object ak4jets 
+  take Jet
+  select pT(Jet) > 30
+  select abs(eta(Jet)) < 2.5
+
+object bjets
+  take jets
+  select CSVv2medium(jets) > ... # find the 2015 WPs! 
+  # either way, this does not exist in POET, there is only a btag attribute.
+
+# EVENT VARIABLES
+
+# EVENT SELECTION
+
+region baseline
+  trigger singleElepT22 or singleMupT20
+  select size(leptons) == 1
+  select size(vetoleptons) == 0
+  select size(jets) >= 1
+  bin size(jets) == 1 and size(bjets) == 0
+  bin size(jets) == 1 and size(bjets) == 1
+  bin size(jets) == 2 and size(bjets) == 0
+  bin size(jets) == 2 and size(bjets) == 1
+  bin size(jets) == 2 and size(bjets) >= 2
+  bin size(jets) == 3 and size(bjets) == 0
+  bin size(jets) == 3 and size(bjets) == 1
+  bin size(jets) == 3 and size(bjets) >= 2
+  bin size(jets) >= 4 and size(bjets) == 0
+  bin size(jets) >= 4 and size(bjets) == 1
+  bin size(jets) >= 4 and size(bjets) >= 2
