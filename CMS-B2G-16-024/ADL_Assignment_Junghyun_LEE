@@ -1,31 +1,23 @@
 # Energy Unit : GeV
 
 ### OBJECT SELECTIONS
+/////////////////////////////////////////////////////////////////////////////
+=============================================================================
+# AK4 related jets and derived objects
 
 # AK4 jets
 object AK4jets
   take Jet
   select pT(Jet) > 30
   select abs(Eta(Jet)) < 2.4
-# The last sentence at the beginning of the [4 Reconstruction methods] states that eta < 2.4.
 
-# However, in event selection, pT is required for the first to be 250 or more and the second to 70 or more.
-# For this, we have to declare two objects like two firstpT, secondpT? 
-# And should the object be declared by overlapping the physical quantity conditions of the reconstruction part and the event selection part?
-
-# Basically, the biggest problem in carrying out this task is that I do not know what to use the condition of the object.
-# Let me give you an example. 
-# In the case of electrons, the conditions in the reconstruction part and the conditions in the boosted H and W channels are different. 
-# If so, do you define each object separately? Or, if there is overlap, do you declare overlapping?
-# First of all, in the case of the electron, for example, I declared both electron and elecronH electron W.
-
-# b-tagged jets - medium
-object bjetsMedium
-  take AK4jets
-  select btagDeepB(AK4jets) > 0.4941
-# I can’t find b-tagged jets parts in paper. But it is used for event selection. so I copied sezen’s works.
-
+    # b-tagged jets - medium
+    object bjetsMedium
+      take AK4jets
+      select btagDeepB(AK4jets) > 0.4941
+    # where is the ref of b-tagged jets? I can't fine paper and analysis note
 =============================================================================
+# AK8 related jets and derived objects
 
 # AK8 jets
 object AK8jets
@@ -33,82 +25,84 @@ object AK8jets
   select pT(FJET) > 200
   select abs(Eta(FJET)) < 2.4
 
-# W jets – mass condition
-object WjetsMasstag
-  take AK8jets
-  select msoftdrop(AK8jets) [] 65 105
+    # W jets – mass condition
+    object WjetsMasstag
+      take AK8jets
+      select msoftdrop(AK8jets) [] 65 105
 
-# W jets - W-tagged
-object Wjets
-  take WjetsMasstag
-  select tau2(WjetsMasstag) / tau1(WjetsMasstag) <= 0.6
+    # W jets - W-tagged
+    object Wjets
+      take WjetsMasstag
+      select tau2(WjetsMasstag) / tau1(WjetsMasstag) <= 0.6
 
-# W jets - anti-tagged
-object WjetsAntitag
-  take WjetsMasstag
-  select tau2(WjetsMasstag) / tau1(WjetsMasstag) > 0.4
-#refer : page 7, 227~233
+    # W jets - anti-tagged
+    object WjetsAntitag
+      take WjetsMasstag
+      select tau2(WjetsMasstag) / tau1(WjetsMasstag) > 0.4
+      #refer : paper page 7, 227~233
 
-# H jets – mass condition
-object HjetsMasstag
-  take AK8jets
-  select msoftdrop(AK8jets) [] 60 160
+    # H jets – mass condition
+    object HjetsMasstag
+      take AK8jets
+      select msoftdrop(AK8jets) [] 60 160
 
-# H jets - H-tagged
-object Hjets
-  take HjetsMasstag
-  select pT(FJET) > 300
+    # H jets - H-tagged
+    object Hjets
+      take HjetsMasstag
+      select pT(FJET) > 300
+ 
+    # H jets - anti-tagged
+    object HjetsAntitag
+      take HjetsMasstag
+      select tau2(HjetsMasstag) / tau1(HjetsMasstag) <= 0.6
+      #refer : paper page 7, 234~237
 
-# H jets - anti-tagged
-object HjetsAntitag
-  take HjetsMasstag
-  select tau2(HjetsMasstag) / tau1(HjetsMasstag) <= 0.6
-#refer : page 7, 234~237
+=============================================================================
+# Leptons
 
-# muons
-object muons
+  # muons
+  object muons
   take Muon
   select pT(Muon) > 45
   select Abs(Eta(Muon)) < 2.1
 
-# electrons
-object electrons
+  # electrons
+  object electrons
   take Electron
   select pT(Electron) > 27
   select Abs(Eta(Electron)) < 2.1
   select Abs(Eta(Electron)) ][ 1.442 1.556
 
-# electronsH
-object electronsH
+  # electronsH
+  object electronsH
   take Electron
   select pT(Electron) > 50
   select Abs(Eta(Electron)) < 2.4
 
-# muonsH
-object muons
+  # muonsH
+  object muons
   take Muon
   select pT(Muon) > 47
   select Abs(Eta(Muon)) < 2.1
 
-# electronsW
-object electronsW
+  # electronsW
+  object electronsW
   take Electron
   select pT(Electron) > 40
   select Abs(Eta(Electron)) < 2.4
 
-# muonsW
-object muons
+  # muonsW
+  object muons
   take Muon
   select pT(Muon) > 40
   select Abs(Eta(Muon)) < 2.4
 
-# In event selection, electron and muon are used under different conditions in boosted H and boosted W. 
-# Should I define the object separately in this way?
-
 =============================================================================
+/////////////////////////////////////////////////////////////////////////////
 
 # EVENT SELECTION
 
+=============================================================================
 # Boosted Higgs regions
 region boostedH
   select size(leptonsH) == 1
@@ -246,5 +240,6 @@ region boostedW16
   select size(bjets) >= 3
   select size(Wjets) >= 1
 
+=============================================================================
 # In the case of boosted W, over 17 regions are declared, and I do not know where so many regions are. 
 # Should I find it in the graph or table part of the paper or analysis note and put it in?
