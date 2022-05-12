@@ -1,7 +1,7 @@
 # Energy Unit : GeV
 
-### OBJECT SELECTIONS
 /////////////////////////////////////////////////////////////////////////////
+### OBJECT SELECTIONS
 =============================================================================
 # AK4 related jets and derived objects
 
@@ -100,8 +100,8 @@ object AK8jets
 =============================================================================
 /////////////////////////////////////////////////////////////////////////////
 
-# EVENT SELECTION
-
+/////////////////////////////////////////////////////////////////////////////
+### EVENT SELECTION
 =============================================================================
 # Boosted Higgs regions
 region boostedH
@@ -241,5 +241,6 @@ region boostedW16
   select size(Wjets) >= 1
 
 =============================================================================
+/////////////////////////////////////////////////////////////////////////////
 # In the case of boosted W, over 17 regions are declared, and I do not know where so many regions are. 
 # Should I find it in the graph or table part of the paper or analysis note and put it in?
