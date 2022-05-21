@@ -1,6 +1,9 @@
-# Energy Unit : GeV
+## Energy Unit : GeV
+## Channels : Boosted W, Boosted H
 
-/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ### OBJECT SELECTIONS
 =============================================================================
 # AK4 related jets and derived objects
@@ -15,7 +18,6 @@ object AK4jets
     object bjetsMedium
       take AK4jets
       select btagDeepB(AK4jets) > 0.4941
-    # where is the ref of b-tagged jets? I can't fine paper and analysis note
 =============================================================================
 # AK8 related jets and derived objects
 
@@ -38,8 +40,8 @@ object AK8jets
     # W jets - anti-tagged
     object WjetsAntitag
       take WjetsMasstag
-      select tau2(WjetsMasstag) / tau1(WjetsMasstag) > 0.4
-      #refer : paper page 7, 227~233
+      select tau2(WjetsMasstag) / tau1(WjetsMasstag) > 0.6
+      ## refer : paper page 7, 227~233
 
     # H jets – mass condition
     object HjetsMasstag
@@ -50,12 +52,35 @@ object AK8jets
     object Hjets
       take HjetsMasstag
       select pT(FJET) > 300
+      select size(bjets) >= 1
  
     # H jets - anti-tagged
     object HjetsAntitag
       take HjetsMasstag
-      select tau2(HjetsMasstag) / tau1(HjetsMasstag) <= 0.6
-      #refer : paper page 7, 234~237
+      select size(bjets) >= 1
+
+    ## WHERE is top jets reference???? ##
+    # top jets - mass-tagged
+    object topjetsMasstag
+      take AK8jets
+      select pT(AK8jets) > 400
+      select msoftdrop(AK8jets) [] 105 210
+
+    # top jets - mass-tagged, subjet b-antitagged
+    object topjetsMasstag0b
+      take topjetsMasstag
+      select btagDeepB(topjetsMasstag) < 0.1522
+
+    # top jets - top-tagged, subjet b-tagged
+    object topjets
+      take topjetsMasstag
+      select btagDeepB(topjetsMasstag) >= 0.1522
+      select tau3(topjetsMasstag) / tau2(topjetsMasstag) < 0.46  
+
+    # top jets - anti-tagged
+    object topjetsAntitag : topjetsMasstag
+      select btagDeepB(topjetsMasstag) < 0.1522
+      select tau3(topjetsMasstag) / tau2(topjetsMasstag) >= 0.46
 
 =============================================================================
 # Leptons
@@ -63,47 +88,99 @@ object AK8jets
   # muons
   object muons
   take Muon
-  select pT(Muon) > 45
-  select Abs(Eta(Muon)) < 2.1
+    select pT(Muon) > 45
+    select Abs(Eta(Muon)) < 2.1
 
   # electrons
   object electrons
   take Electron
-  select pT(Electron) > 27
-  select Abs(Eta(Electron)) < 2.1
-  select Abs(Eta(Electron)) ][ 1.442 1.556
+    select pT(Electron) > 27
+    select Abs(Eta(Electron)) < 2.1
+    select Abs(Eta(Electron)) ][ 1.442 1.556
 
   # electronsH
   object electronsH
-  take Electron
-  select pT(Electron) > 50
-  select Abs(Eta(Electron)) < 2.4
+    take Electron
+    select pT(Electron) > 50
+    select Abs(Eta(Electron)) < 2.4
+    ## Each lepton has different tagging conditions in Boosted W and Boosted H channels.
+    ## So I declare an object separately.
 
   # muonsH
   object muons
-  take Muon
-  select pT(Muon) > 47
-  select Abs(Eta(Muon)) < 2.1
+    take Muon
+    select pT(Muon) > 47
+    select Abs(Eta(Muon)) < 2.1
 
   # electronsW
   object electronsW
-  take Electron
-  select pT(Electron) > 40
-  select Abs(Eta(Electron)) < 2.4
+    take Electron
+    select pT(Electron) > 40
+    select Abs(Eta(Electron)) < 2.4
 
   # muonsW
   object muons
-  take Muon
-  select pT(Muon) > 40
-  select Abs(Eta(Muon)) < 2.4
+    take Muon
+    select pT(Muon) > 40
+    select Abs(Eta(Muon)) < 2.4
 
 =============================================================================
-/////////////////////////////////////////////////////////////////////////////
+# Higgs
+  ## H2b : 1 or more Higgs-tagged jet with 2 b-tagged subjets
+  ## H1B : fails H2b, but 1 or more Higgs-tagged jet with 1 b-tagged subjet
 
-/////////////////////////////////////////////////////////////////////////////
+  # H1B
+  object Higgsb
+    take Higgs
+    select .... == 1
+    ## select size(bjects) == 1 (I think this line should be added)
+
+ ## Clearly, H1B appears to accompany one subjet.
+ ## But why define H1B only as above? 
+ ## Of course, there are conditions such as 'select size(bjets) >= 1' in the event selection stage.
+ ## I think that the condition for the size of objects should be put in this part according to the reference,
+ ## but I don't know if it's correct.
+
+  # H2B
+  object Higgsbb
+    take Higgs
+    select .... == 2
+
+=============================================================================
+### END OF OBJECT SELECTIONS
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+### EVENT VARIABLES
+=============================================================================
+
+define ST = MET + pT(leptons[0]) + fHT(AK4jets)
+
+define minmlb = min(m(leptonsW[0], bjets))
+# The minimum mass construted from the lepton (l) and a b-tagged AK4 jet
+
+define minmlj = min(m(leptonsW[0], AK4jets))
+# The minimum mass of the lepton and any AK4 jet
+
+=============================================================================
+### END OF EVENT VARIABLES
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ### EVENT SELECTION
 =============================================================================
 # Boosted Higgs regions
+### Boosted Higgs channel has 4 categories
+### (e, mu) * (H1b, H2b)
+
+## However, unlike mentioned above,
+## there are four types of plots in the analysis note:
+## '2+ b tags', '0 b tags', 'H1b category', and 'H2b category'. 
+## What part am I not understanding?
+
 region boostedH
   select size(leptonsH) == 1
   select size(AK4jets) >= 3 
@@ -113,22 +190,43 @@ region boostedH
   select ST > 800
   select size(bjets) >= 1
   
-region boostedH2b
-  boostedH
-  select size(Higgsbb) >= 1
+  region boostedH2b
+    boostedH
+    select size(Higgsbb) >= 1
+    bin ST [] 750 875
+    bin ST [] 875 1000
+    bin ST [] 1000 1125
+    bin ST [] 1000 1125
+    bin ST [] 1125 1500
+    bin ST [] 1500 2000
+    bin ST [] 2000 2500
+    bin ST [] 2500 3000
+    bin ST [] 3000 4500
+    bin ST [] 4500 6500
 
-region boostedH1b
-  boostedH
-  reject size(Higgsbb) >= 1
-  select size(Higgsb) >= 1
+  region boostedH1b
+    boostedH
+    reject size(Higgsbb) >= 1
+    select size(Higgsb) >= 1
+    bin ST [] 750 875
+    bin ST [] 875 1000
+    bin ST [] 1000 1125
+    bin ST [] 1000 1500
+    bin ST [] 1500 2000
+    bin ST [] 2000 2500
+    bin ST [] 2500 3000
+    bin ST [] 3000 4500
+    bin ST [] 4500 6500
 
+## In other ADL files, region usually has two variable conditions, 
+## but I don't know what to put other than ST.
+
+=============================================================================
 # Boosted W regions
 region boostedW
   select size(leptonsW) == 1
   select size(Higgs) == 0
   select size(vetoleptons) == 0
-#where is veto lepton part??
-
   select size(AK4jets) >= 3 
   select pT(AK4jets[0]) > 300
   select pT(AK4jets[1]) > 150
@@ -241,6 +339,5 @@ region boostedW16
   select size(Wjets) >= 1
 
 =============================================================================
-/////////////////////////////////////////////////////////////////////////////
-# In the case of boosted W, over 17 regions are declared, and I do not know where so many regions are. 
-# Should I find it in the graph or table part of the paper or analysis note and put it in?
+### END OF EVENT SELECTIONS
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
