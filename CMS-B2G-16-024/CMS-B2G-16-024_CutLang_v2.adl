@@ -1,0 +1,333 @@
+## Energy Unit : GeV
+## Channels : Boosted W, Boosted H
+
+# ========================================
+### OBJECT SELECTIONS
+
+# ----------------------------------------
+# AK4 related jets and derived objects
+# AK4 jets - slimmed jets
+object AK4jets
+  take Jet
+  select pT(Jet) > 30
+  select abs(Eta(Jet)) < 2.4
+  select loosePFJetID(Jet) == 1 # check actual variable name
+  select dR(Jet, leptons) > 0.4 or relative pT? > 40 # 
+  # relative pT: projection of the lepton momentum on the direction perpendicular to the jet momentum in the l-j plane
+
+# b-tagged jets
+object bjets
+  take AK4jets
+  select pfCombinedInclusiveSecondaryVertexV2BJetTags(AK4jets) > 0.890 
+  select dR(Higgs, AK4jets) > 0.8 # from AN2015_327.  The others don't mention this.
+
+# ----------------------------------------
+# AK8 related jets and derived objects
+
+# AK8 jets
+object AK8jets
+  take FJet
+  select pT(FJet) > 200
+  select abs(Eta(FJet)) < 2.4
+
+# Ws -- boosted tag
+object Wtags
+  take AK8jets
+  select msoftdrop(AK8jets) [] 65 105
+  select tau2(AK8jets) / tau1(AK8jets) <= 0.6
+
+# Higgses –- boosted candidates
+object Hcands
+  take AK8jets
+  select msoftdrop(AK8jets) [] 60 160 # AN2015_327 and the paper
+  # select msoftdrop(AK8jets) [] 60 150 # AN2015_161 - a typo?
+  select pT(AK8jets) > 300
+
+# Higgses - boosted H-tag Type-I
+object HtagsType1
+  take Hcands
+  select size(bjets(Hcands)) == 1 # 1 subjet passing pfCombinedInclusiveSecondaryVertexV2BJetTags
+
+# Higgses - boosted H-tag Type-II
+object HtagsType2
+  take HjetsMasstag
+  select size(bjets(Hcands)) == 2 # 2 subjet passing pfCombinedInclusiveSecondaryVertexV2BJetTags
+
+# ----------------------------------------
+# Leptons
+
+# muons
+object muons
+take Muon
+  select pT(Muon) > 45
+  select Abs(Eta(Muon)) < 2.1
+
+# electrons
+object electrons
+take Electron
+  select pT(Electron) > 27
+  select Abs(Eta(Electron)) < 2.1
+  select Abs(Eta(Electron)) ][ 1.442 1.556
+
+object electronstight # AN2015_161, AN2016_343, W channels
+  take Electron
+  select eta [] 0.0 0.8 ? MVA > 0.967083
+  select eta [] 0.8 1.479 ? MVA > 0.929117
+  select eta [] 0.0 0.8 ? MVA > 0.726311
+  select iso == tight
+  select miniiso < 0.1
+
+object electronsloose # AN2015_161, AN2016_343, W channels
+  take Electron
+  select eta [] 0.0 0.8 ? MVA > 0.913286
+  select eta [] 0.8 1.479 ? MVA > 0.805013
+  select eta [] 0.0 0.8 ? MVA > 0.358969
+  select iso == loose
+  select miniiso < 0.4
+
+object electronsMedium # AN2015_327, H channels
+  take slimmedElectrons
+  select mediumCutBasedID == 1
+  select pT > 20
+  select abs(eta) < 2.5
+
+object muonstight # AN2015_161, AN2016_343, W channels
+  take Muon
+  select globalmuon == 1
+  select x2overndof < 10
+  select numberofmuonsystemhits > 0
+  select number of chambers with matched segments > 1
+  select dxy < 2
+  select dz < 5
+  select numberofpixelhits > 0
+  select numberoftrackerlayerswithhits > 5
+  select miniiso < 0.2
+
+object muonsloose # AN2015_161, AN2016_343, W channels
+  take slimmedMuons
+  select globalmuon == 1 or trackermuon == 1
+  select miniiso < 0.4
+
+object muonsmedium # AN2015_327, Higgs channels
+  take slimmedMuons
+  select isMediumMuon(recoMu, vtx) == 1
+  select pT > 20
+  select abs(eta) < 2.1
+
+# electronsH
+object electronsH
+  take electronsmedium
+  select pT > 50
+  select Abs(Eta) < 2.4
+
+# muonsH
+object muons
+  take muonsmedium
+  select pT > 47
+  select Abs(Eta) < 2.1
+
+# electronsWtight
+object electronsWtight
+  take electronstight
+  select pT > 40
+  select Abs(Eta) < 2.1
+
+# electronsWloose
+object electronsWloose
+  take electronsloose
+  select pT > 10
+  select Abs(Eta) < 2.1
+  reject tightelectrons # need to figure out how to write this
+
+# muonsWtight
+object muonsWtight
+  take muonstight
+  select pT > 40
+  select Abs(Eta) < 2.4
+
+# muonsWloose
+object muonsWloose
+  take muonsloose
+  select pT > 10
+  select Abs(Eta) < 2.4
+  reject tightmuons # need to figure out how to write this
+
+# ========================================
+### EVENT VARIABLES
+
+define ST = MET + pT(leptons[0]) + fHT(AK4jets)
+
+# The minimum mass construted from the lepton (l) and a b-tagged AK4 jet
+define minmlb = min(m(leptonsW[0], bjets))
+
+# The minimum mass of the lepton and any AK4 jet
+define minmlj = min(m(leptonsW[0], AK4jets))
+
+# ========================================
+### EVENT SELECTION
+
+# Boosted Higgs regions
+### Boosted Higgs channel has 4 categories
+### (e, mu) * (H1b, H2b)
+
+## However, unlike mentioned above,
+## there are four types of plots in the analysis note:
+## '2+ b tags', '0 b tags', 'H1b category', and 'H2b category'. 
+## What part am I not understanding?
+
+# ----------------------------------------
+region boostedH
+  #trigger HLT_Ele27_eta2p1_WPLoose_Gsf (data) or HLT_Ele27_eta2p1_WP75_Gsf (MC)
+  #trigger HLT_IsoMu20 or HLT_IsoTkMu20
+  select size(electronsH) == 1 or size(muonsH) == 1
+  select size(AK4jets) >= 3 
+  select size(AK8jets) >= 2 
+  select size(electronsH) == 1 ? pT(AK8jets[0]) >= 250 : ALL
+  select size(electronsH) == 1 ? pT(AK4jets[1]) >= 70 : ALL
+  select ST > 800
+  select size(bjets) >= 1
+  
+region boostedH2b
+  boostedH
+  select size(HtagsType2) >= 1
+  bin ST [] 750 875 1000 1125 1500 2000 2500 3000 4500 6500
+
+region boostedH1b
+  boostedH
+  reject size(HtagsType1) >= 1
+  select size(HtagsType2) == 0
+  bin ST [] 750 875 1000 1125 1500 2000 2500 3000 4500 6500
+
+# ----------------------------------------
+# Boosted W regions
+region boostedW
+  select size(electronsWtight) + size(muonsWtight) == 1 
+  select size(electronsWloose) + size(muonsWtight) == 0 
+  select size(HtagsType1) + size(HtagsType2) == 0
+  select size(AK4jets) >= 3 
+  select pT(AK4jets[0]) > 300
+  select pT(AK4jets[1]) > 150
+  select pT(AK4jets[2]) > 100
+  select MET > 75
+  select dR(leptonsW[0], AK4jets[1]) > 1
+
+region boostedW1
+  boostedW
+  select size(electronsWtight) == 1
+  select size(bjets) == 0
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+  # bins of minmlj - to be defined
+
+region boostedW2
+  boostedW
+  select size(electronsWtight) == 1
+  select size(bjets) == 0
+  select size(Wjets) >= 1
+  # bins of minmlb - to be defined
+
+region boostedW3
+  boostedW
+  select size(electronsWtight) == 1
+  select size(bjets) == 1
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+  # bins of minmlj - to be defined
+
+region boostedW4
+  boostedW
+  select size(electronsWtight) == 1
+  select size(bjets) == 1
+  select size(Wjets) >= 1
+  # bins of minmlb - to be defined
+
+region boostedW5
+  boostedW
+  select size(electronsWtight) == 1
+  select size(bjets) == 2
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+  # bins of minmlj - to be defined
+
+region boostedW6
+  boostedW
+  select size(electronsWtight) == 1
+  select size(bjets) == 2
+  select size(Wjets) >= 1
+  # bins of minmlb - to be defined
+
+region boostedW7
+  boostedW
+  select size(electronsWtight) == 1
+  select size(bjets) >= 3
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+  # bins of minmlj - to be defined
+
+region boostedW8
+  boostedW
+  select size(electronsWtight) == 1
+  select size(bjets) >= 3
+  select size(Wjets) >= 1
+  # bins of minmlb - to be defined
+
+region boostedW9
+  boostedW
+  select size(muonsWtight) == 1
+  select size(bjets) == 0
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+  # bins of minmlj - to be defined
+
+region boostedW10
+  boostedW
+  select size(muonsWtight) == 1
+  select size(bjets) == 0
+  select size(Wjets) >= 1
+  # bins of minmlb - to be defined
+
+region boostedW11
+  boostedW
+  select size(muonsWtight) == 1
+  select size(bjets) == 1
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+  # bins of minmlj - to be defined
+
+region boostedW12
+  boostedW
+  select size(muonsWtight) == 1
+  select size(bjets) == 1
+  select size(Wjets) >= 1
+  # bins of minmlb - to be defined
+
+region boostedW13
+  boostedW
+  select size(muonsWtight) == 1
+  select size(bjets) == 2
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+  # bins of minmlj - to be defined
+
+region boostedW14
+  boostedW
+  select size(muonsWtight) == 1
+  select size(bjets) == 2
+  select size(Wjets) >= 1
+  # bins of minmlb - to be defined
+
+region boostedW15
+  boostedW
+  select size(muonsWtight) == 1
+  select size(bjets) >= 3
+  select size(Wjets) == 0
+  select size(AK4jets) >= 4
+  # bins of minmlj - to be defined
+
+region boostedW16
+  boostedW
+  select size(muonsWtight) == 1
+  select size(bjets) >= 3
+  select size(Wjets) >= 1
+  # bins of minmlb - to be defined
+
