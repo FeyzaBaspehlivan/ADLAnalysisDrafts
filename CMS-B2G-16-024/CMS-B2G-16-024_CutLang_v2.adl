@@ -11,14 +11,14 @@ object AK4jets
   take Jet
   select pT(Jet) > 30
   select abs(Eta(Jet)) < 2.4
-  select loosePFJetID(Jet) == 1 # check actual variable name
+  select loosePFJetID(Jet) == 1 # needed in POET
   select dR(Jet, leptons) > 0.4 or relative pT? > 40 # 
   # relative pT: projection of the lepton momentum on the direction perpendicular to the jet momentum in the l-j plane
 
 # b-tagged jets
 object bjets
   take AK4jets
-  select pfCombinedInclusiveSecondaryVertexV2BJetTags(AK4jets) > 0.890 
+  select pfCombinedInclusiveSecondaryVertexV2BJetTags(AK4jets) > 0.890 # needed in POET
   select dR(Higgs, AK4jets) > 0.8 # from AN2015_327.  The others don't mention this.
 
 # ----------------------------------------
@@ -26,15 +26,15 @@ object bjets
 
 # AK8 jets
 object AK8jets
-  take FJet
+  take FatJet # FatJet collection needed in POET
   select pT(FJet) > 200
   select abs(Eta(FJet)) < 2.4
 
 # Ws -- boosted tag
 object Wtags
-  take AK8jets
-  select msoftdrop(AK8jets) [] 65 105
-  select tau2(AK8jets) / tau1(AK8jets) <= 0.6
+  take AK8jets 
+  select msoftdrop(AK8jets) [] 65 105 # needed in POET
+  select tau2(AK8jets) / tau1(AK8jets) <= 0.6 # needed in POET
 
 # Higgses –- boosted candidates
 object Hcands
@@ -47,11 +47,13 @@ object Hcands
 object HtagsType1
   take Hcands
   select size(bjets(Hcands)) == 1 # 1 subjet passing pfCombinedInclusiveSecondaryVertexV2BJetTags
+  # subjet b-tagging needed in POET
 
 # Higgses - boosted H-tag Type-II
 object HtagsType2
   take HjetsMasstag
   select size(bjets(Hcands)) == 2 # 2 subjet passing pfCombinedInclusiveSecondaryVertexV2BJetTags
+  # subjet b-tagging needed in POET
 
 # ----------------------------------------
 # Leptons
@@ -71,6 +73,7 @@ take Electron
 
 object electronstight # AN2015_161, AN2016_343, W channels
   take Electron
+  # MVA tight ID - needed in POET
   select eta [] 0.0 0.8 ? MVA > 0.967083
   select eta [] 0.8 1.479 ? MVA > 0.929117
   select eta [] 0.0 0.8 ? MVA > 0.726311
@@ -79,6 +82,7 @@ object electronstight # AN2015_161, AN2016_343, W channels
 
 object electronsloose # AN2015_161, AN2016_343, W channels
   take Electron
+  # MVA loose ID - needed in POET
   select eta [] 0.0 0.8 ? MVA > 0.913286
   select eta [] 0.8 1.479 ? MVA > 0.805013
   select eta [] 0.0 0.8 ? MVA > 0.358969
@@ -87,12 +91,14 @@ object electronsloose # AN2015_161, AN2016_343, W channels
 
 object electronsMedium # AN2015_327, H channels
   take slimmedElectrons
-  select mediumCutBasedID == 1
+  select mediumCutBasedID == 1 # medium cut based ID needed in POET
   select pT > 20
   select abs(eta) < 2.5
 
 object muonstight # AN2015_161, AN2016_343, W channels
-  take Muon
+  take slimmedMuons
+  # cut based tight ID needed in POET
+  # the below variables are just the names of quantities, but not object attributes
   select globalmuon == 1
   select x2overndof < 10
   select numberofmuonsystemhits > 0
@@ -105,11 +111,15 @@ object muonstight # AN2015_161, AN2016_343, W channels
 
 object muonsloose # AN2015_161, AN2016_343, W channels
   take slimmedMuons
+  # cut based loose ID needed in POET
+  # the below variables are just the names of quantities, but not object attributes  
   select globalmuon == 1 or trackermuon == 1
   select miniiso < 0.4
 
 object muonsmedium # AN2015_327, Higgs channels
   take slimmedMuons
+  # cut based medium ID needed in POET
+  # the variable below was mentioned in AN2015_327 
   select isMediumMuon(recoMu, vtx) == 1
   select pT > 20
   select abs(eta) < 2.1
