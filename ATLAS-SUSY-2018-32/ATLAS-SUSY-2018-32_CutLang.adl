@@ -1,0 +1,184 @@
+#info analysis
+ title "Search for electroweak production of charginos and sleptons decaying into final states with two leptons and missing transverse momentum in sqrts=13 TeV pp collisions using the ATLAS detector "
+#  experiment ATLAS
+#  id SUSY-2018-32
+  publication "Eur. Phys. J. C 80 (2020) 123"
+#  sqrtS 13.0
+#  lumi 139
+#  arXiv 1908.08215
+#  hepdata ...
+  doi "10.1140/epjc/s10052-019-7594-6"
+
+#OBJECT SELECTION
+object goodJet
+  take JET
+  select pT(JET) > 20
+  select abs(eta(JET) ) < 2.4
+
+object bJet
+  take goodJet
+  select BTag(goodJet) == 1
+
+object nobJet
+  take goodJet
+  select BTag(goodJet) == 0
+
+object gEle
+  take ELE
+  select pT(ELE) > 25
+  select abseta(ELE) < 2.47
+  select dR(ELE, goodJet) > 0.2
+
+object gMuo
+  take MUO
+  select pT(MUO) > 25
+  select abseta(MUO) < 2.47
+#  select dR(MUO, goodJet) > 0.2
+
+object gLeptons: Union(gEle, gMuo)
+define MT2 = fMT2(gLeptons[0], gLeptons[1], METLV[0])
+#define mEff   = pT(gLeptons[0])   + fHT(goodJet) + MET
+define MTl   = sqrt(2*pT(gLeptons[0]  )*MET*( 1-cos(Phi(METLV[0]) - Phi(gLeptons[0]  ) )))
+
+region preselection
+  select ALL
+  select size(goodJet) >= 0
+  select Size(bJet) ==0 
+  select MET > 110
+  select Size(gLeptons) == 2 ## preselection PT>7 signal >25
+  select q(gLeptons) == 0
+  select size(nobJet) < 2
+
+ region SR-DF
+   preselection
+   select size(gEle) == 1 && size(gMuo) == 1
+   select  m(gLeptons[0]  gLeptons[1]) > 100
+ 
+ region SR-SF
+   preselection
+   select size(gEle) == 2 || size(gMuo) == 2
+   select  m(gLeptons[0]  gLeptons[1]) > 121.2
+ 
+ region SR-SF-ExcluBin
+   SR-SF
+   Bin MT2   [] 100  105  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 100  105  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 105  110  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 105  110  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 110  120  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 110  120  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 120  140  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 120  140  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 140  160  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 140  160  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 160  180  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 160  180  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 180  220  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 180  220  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 220  260  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 220  260  && Size(nobJet) ==1 # EXCLU
+   Bin MT2    >      260  && Size(nobJet) ==0 # EXCLU
+   Bin MT2    >      260  && Size(nobJet) ==1 # EXCLU
+ 
+ region SR-SF-IncluA0J
+   SR-SF
+   select Size(nobJet) ==0
+   select MT2 > 100  
+
+ region SR-SF-IncluA1J
+   SR-SF
+   select Size(nobJet) ==1
+   select MT2 > 100  
+ 
+ region SR-SF-IncluB0J
+   SR-SF
+   select Size(nobJet) ==0
+   select MT2 > 160  
+
+ region SR-SF-IncluB1J
+   SR-SF
+   select Size(nobJet) ==1
+   select MT2 > 160  
+ 
+ region SR-SF-IncluC0J
+   SR-SF
+   select Size(nobJet) ==0
+   select MT2 [] 100 120 
+
+ region SR-SF-IncluC1J
+   SR-SF
+   select Size(nobJet) ==1
+   select MT2 [] 100 120  
+
+ region SR-SF-IncluD0J
+   SR-SF
+   select Size(nobJet) ==0
+   select MT2 [] 120 160 
+
+ region SR-SF-IncluD1J
+   SR-SF
+   select Size(nobJet) ==1
+   select MT2 [] 120 160  
+
+############################################
+ region SR-DF-ExcluBin
+   SR-DF
+   Bin MT2   [] 100  105  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 100  105  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 105  110  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 105  110  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 110  120  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 110  120  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 120  140  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 120  140  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 140  160  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 140  160  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 160  180  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 160  180  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 180  220  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 180  220  && Size(nobJet) ==1 # EXCLU
+   Bin MT2   [] 220  260  && Size(nobJet) ==0 # EXCLU
+   Bin MT2   [] 220  260  && Size(nobJet) ==1 # EXCLU
+   Bin MT2    >      260  && Size(nobJet) ==0 # EXCLU
+   Bin MT2    >      260  && Size(nobJet) ==1 # EXCLU
+ 
+ region SR-DF-IncluA0J
+   SR-DF
+   select Size(nobJet) ==0
+   select MT2 > 100  
+
+ region SR-DF-IncluA1J
+   SR-DF
+   select Size(nobJet) ==1
+   select MT2 > 100  
+ 
+ region SR-DF-IncluB0J
+   SR-DF
+   select Size(nobJet) ==0
+   select MT2 > 160  
+
+ region SR-DF-IncluB1J
+   SR-DF
+   select Size(nobJet) ==1
+   select MT2 > 160  
+ 
+ region SR-DF-IncluC0J
+   SR-DF
+   select Size(nobJet) ==0
+   select MT2 [] 100 120 
+
+ region SR-DF-IncluC1J
+   SR-DF
+   select Size(nobJet) ==1
+   select MT2 [] 100 120  
+
+ region SR-DF-IncluD0J
+   SR-DF
+   select Size(nobJet) ==0
+   select MT2 [] 120 160 
+
+ region SR-DF-IncluD1J
+   SR-DF
+   select Size(nobJet) ==1
+   select MT2 [] 120 160  
+
