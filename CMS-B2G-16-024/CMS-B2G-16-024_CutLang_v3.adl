@@ -1,5 +1,15 @@
-## Energy Unit : GeV
-## Channels : Boosted W, Boosted H
+#info analysis
+# Details about experiment
+#  experiment CMS
+#  id B2G-16-024
+#  title Search for pair production of vector-like T and B quarks in single-lepton final states using boosted jet substructure in proton-proton collisions at sqrts = 13 TeV
+#  publication 
+#  sqrtS 13.0
+#  lumi 2.6 fb
+#  arXiv 1706.03408
+#  hepdata 
+#  doi 
+#  energyunit GeV
 
 # ========================================
 ### OBJECT SELECTIONS
@@ -11,27 +21,27 @@ object AK4jets
   take Jet
   select pT(Jet) > 30
   select abs(Eta(Jet)) < 2.4
-  select loosePFJetID(Jet) == 1 # needed in POET
-  select dR(Jet, leptons) > 0.4 or relative pT? > 40 # 
+  # select loosePFJetID(Jet) == 1 # unnecessary cut. %99 passes.
+  # select dR(Jet, leptons) > 0.4 or relative pT? > 40 # unnecessary cut. 
   # relative pT: projection of the lepton momentum on the direction perpendicular to the jet momentum in the l-j plane
 
 # b-tagged jets
 object bjets
   take AK4jets
-  select pfCombinedInclusiveSecondaryVertexV2BJetTags(AK4jets) > 0.890 # needed in POET
-  select dR(Higgs, AK4jets) > 0.8 # from AN2015_327.  The others don't mention this.
+  select btag(AK4jets) > 0.890 
+#  select dR(Higgs, AK4jets) > 0.8 # from AN2015_327.  The others don't mention this.
 
 # ----------------------------------------
 # AK8 related jets and derived objects
 
 # AK8 jets
 object AK8jets
-  take FatJet # FatJet collection needed in POET
+  take FJet 
   select pT(FJet) > 200
   select abs(Eta(FJet)) < 2.4
 
 # Ws -- boosted tag
-object Wtags
+object Wjets
   take AK8jets 
   select msoftdrop(AK8jets) [] 65 105 # needed in POET
   select tau2(AK8jets) / tau1(AK8jets) <= 0.6 # needed in POET
@@ -40,159 +50,112 @@ object Wtags
 object Hcands
   take AK8jets
   select msoftdrop(AK8jets) [] 60 160 # AN2015_327 and the paper
-  # select msoftdrop(AK8jets) [] 60 150 # AN2015_161 - a typo?
   select pT(AK8jets) > 300
 
 # Higgses - boosted H-tag Type-I
 object HtagsType1
   take Hcands
-  select size(bjets(Hcands)) == 1 # 1 subjet passing pfCombinedInclusiveSecondaryVertexV2BJetTags
-  # subjet b-tagging needed in POET
+  # require 1 subjet passing pfCombinedInclusiveSecondaryVertexV2BJetTags
+  select (subjet1_btag(Hcands) >= 0.5 and subjet2_btag(Hcands) < 0.5) or (subjet1_btag(Hcands) < 0.5 and subjet2_btag(Hcands) >= 0.5)
 
 # Higgses - boosted H-tag Type-II
 object HtagsType2
-  take HjetsMasstag
-  select size(bjets(Hcands)) == 2 # 2 subjet passing pfCombinedInclusiveSecondaryVertexV2BJetTags
-  # subjet b-tagging needed in POET
+  take Hcands
+  # require 2 subjets passing pfCombinedInclusiveSecondaryVertexV2BJetTags
+  select subjet1_btag(Hcands) >= 0.5 and subjet2_btag(Hcands) >= 0.5
 
 # ----------------------------------------
 # Leptons
 
-# muons
-object muons
-take Muon
-  select pT(Muon) > 45
-  select Abs(Eta(Muon)) < 2.1
-
-# electrons
-object electrons
-take Electron
-  select pT(Electron) > 27
-  select Abs(Eta(Electron)) < 2.1
-  select Abs(Eta(Electron)) ][ 1.442 1.556
-
-object electronstight # AN2015_161, AN2016_343, W channels
-  take Electron
-  # MVA tight ID - needed in POET
-  select eta [] 0.0 0.8 ? MVA > 0.967083
-  select eta [] 0.8 1.479 ? MVA > 0.929117
-  select eta [] 0.0 0.8 ? MVA > 0.726311
-  select iso == tight
-  select miniiso < 0.1
-
-object electronsloose # AN2015_161, AN2016_343, W channels
-  take Electron
-  # MVA loose ID - needed in POET
-  select eta [] 0.0 0.8 ? MVA > 0.913286
-  select eta [] 0.8 1.479 ? MVA > 0.805013
-  select eta [] 0.0 0.8 ? MVA > 0.358969
-  select iso == loose
-  select miniiso < 0.4
-
-object electronsMedium # AN2015_327, H channels
-  take slimmedElectrons
-  select mediumCutBasedID == 1 # medium cut based ID needed in POET
-  select pT > 20
-  select abs(eta) < 2.5
-
-object muonstight # AN2015_161, AN2016_343, W channels
-  take slimmedMuons
-  # cut based tight ID needed in POET
-  # the below variables are just the names of quantities, but not object attributes
-  select globalmuon == 1
-  select x2overndof < 10
-  select numberofmuonsystemhits > 0
-  select number of chambers with matched segments > 1
-  select dxy < 2
-  select dz < 5
-  select numberofpixelhits > 0
-  select numberoftrackerlayerswithhits > 5
-  select miniiso < 0.2
-
-object muonsloose # AN2015_161, AN2016_343, W channels
-  take slimmedMuons
-  # cut based loose ID needed in POET
-  # the below variables are just the names of quantities, but not object attributes  
-  select globalmuon == 1 or trackermuon == 1
-  select miniiso < 0.4
-
-object muonsmedium # AN2015_327, Higgs channels
-  take slimmedMuons
-  # cut based medium ID needed in POET
-  # the variable below was mentioned in AN2015_327 
-  select isMediumMuon(recoMu, vtx) == 1
-  select pT > 20
-  select abs(eta) < 2.1
-
+# Electrons
 # electronsH
-object electronsH
-  take electronsmedium
-  select pT > 50
-  select Abs(Eta) < 2.4
-
-# muonsH
-object muons
-  take muonsmedium
-  select pT > 47
-  select Abs(Eta) < 2.1
+object electronsH # AN2015_327, for H channels
+  take Electron
+  # medium cut based ID
+  select Medium(Electron) == 1
+  select pT(Electron) > 50
+  select abs(eta(Electron)) < 2.4
+  select isolationVar(Electron) < 0.2
+  #select dR(Electron, AK4jets) > 0.4 or dR(Electron, AK4jets) > 40
 
 # electronsWtight
-object electronsWtight
-  take electronstight
-  select pT > 40
-  select Abs(Eta) < 2.1
+object electronsWtight # AN2015_161, AN2016_343, for W channels
+  take Electron
+  # MVA tight ID
+  select mvaTight(Electron) == 1
+  select isolationVar(Electron) < 0.1
+  select pT(Electron) > 40
+  select Abs(Eta(Electron)) < 2.1
 
 # electronsWloose
-object electronsWloose
-  take electronsloose
-  select pT > 10
-  select Abs(Eta) < 2.1
-  reject tightelectrons # need to figure out how to write this
+object electronsWloose # AN2015_161, AN2016_343, for W channels
+  take Electron
+  # MVA loose ID 
+  select mvaLoose(Electron) == 1
+  select isolationVar(Electron) < 0.4
+  select pT(Electron) > 10
+  select Abs(Eta(Electron)) < 2.1
+  # reject tight MVA electrons 
+  reject mvaTight(Electron) == 1 and isolationVar(Electron) / pT(Electron) < 0.1
+
+# Muons
+# muonsH
+object muonsH # AN2015_327, for H channels
+  take Muon
+  # cut based medium ID 
+  select Medium(Muon) == 1
+  select pT(Muon) > 47
+  select abs(eta(Muon)) < 2.1
+  select isolationVar(Muon) < 0.2
+  #select dR(Muon, AK4jets) > 0.4 or dR(Muon, AK4jets) > 40
 
 # muonsWtight
-object muonsWtight
-  take muonstight
-  select pT > 40
-  select Abs(Eta) < 2.4
+object muonsWtight # AN2015_161, AN2016_343, for W channels
+  take Muon
+  # cut based tight ID 
+  select Tight(Muon) == 1
+  select isolationVar(Muon) < 0.2
+  select pT(Muon) > 40
+  select Abs(Eta(Muon)) < 2.4
 
 # muonsWloose
-object muonsWloose
-  take muonsloose
-  select pT > 10
-  select Abs(Eta) < 2.4
-  reject tightmuons # need to figure out how to write this
+object muonsWloose # AN2015_161, AN2016_343, for W channels
+  take Muon
+  # cut based loose ID 
+  select Loose(Muon) == 1
+  select isolationVar(Muon) < 0.4
+  select pT(Muon) > 10
+  select Abs(Eta(Muon)) < 2.4
+  reject Tight(Muon) == 1 and isolationVar(Muon) / pT(Muon) < 0.2
+
+# leptons
+object leptonsWloose : Union(electronsWloose, muonsWloose)
+object leptonsWtight : Union(electronsWtight, muonsWtight)
+object leptonsH : Union(electronsH, muonsH)
 
 # ========================================
 ### EVENT VARIABLES
 
-define ST = MET + pT(leptons[0]) + fHT(AK4jets)
+define ST = MET + pT(leptonsH[0]) + fHT(AK4jets)
 
 # The minimum mass construted from the lepton (l) and a b-tagged AK4 jet
-#define minmlb = min(m(leptonsW[0], bjets))
-define minmlb = m(leptonsW[0] + bjets[-1])
+define minmlb = m(leptonsWtight[0] + bjets[-1])
 
 # The minimum mass of the lepton and any AK4 jet
-#define minmlj = min(m(leptonsW[0], AK4jets))
-define minmlj = m(leptonsW[0] + jets[-1])
+define minmlj = m(leptonsWtight[0] + AK4jets[-1])
 
 # ========================================
 ### EVENT SELECTION
 
-# Boosted Higgs regions
-### Boosted Higgs channel has 4 categories
-### (e, mu) * (H1b, H2b)
-
-## However, unlike mentioned above,
-## there are four types of plots in the analysis note:
-## '2+ b tags', '0 b tags', 'H1b category', and 'H2b category'. 
-## What part am I not understanding?
-
 # ----------------------------------------
+# Boosted Higgs regions
 # Signal regions
 region boostedH
   #trigger HLT_Ele27_eta2p1_WPLoose_Gsf (data) or HLT_Ele27_eta2p1_WP75_Gsf (MC)
   #trigger HLT_IsoMu20 or HLT_IsoTkMu20
-  select size(electronsH) == 1 or size(muonsH) == 1
+  #select size(electronsH) == 1 or size(muonsH) == 1
+  select ALL  
+  select size(leptonsH) == 1
   select size(AK4jets) >= 3 
   select size(AK8jets) >= 2 
   select size(electronsH) == 1 ? pT(AK8jets[0]) >= 250 : ALL
@@ -203,13 +166,13 @@ region boostedH
 region boostedH2b
   boostedH
   select size(HtagsType2) >= 1
-  bin ST [] 750 875 1000 1125 1500 2000 2500 3000 4500 6500
+  bin ST 750 875 1000 1125 1500 2000 2500 3000 4500 6500
 
 region boostedH1b
   boostedH
   select size(HtagsType1) >= 1
   select size(HtagsType2) == 0
-  bin ST [] 750 875 1000 1125 1500 2000 2500 3000 4500 6500
+  bin ST 750 875 1000 1125 1500 2000 2500 3000 4500 6500
 
 # Control regions
 region boostedHCRttjets
@@ -246,15 +209,15 @@ region boostedHCRWjets
 # Boosted W regions
 # Signal regions
 region boostedW
-  select size(electronsWtight) + size(muonsWtight) == 1 
-  select size(electronsWloose) + size(muonsWloose) == 0 
+  select size(leptonsWtight) == 1 
+  select size(leptonsWloose) == 0 
   select size(HtagsType1) + size(HtagsType2) == 0
   select size(AK4jets) >= 3 
   select pT(AK4jets[0]) > 300
   select pT(AK4jets[1]) > 150
   select pT(AK4jets[2]) > 100
   select MET > 75
-  select dR(leptonsW[0], AK4jets[1]) > 1
+  select dR(leptonsWtight[0], AK4jets[1]) > 1
   select minmlb ~= 0
   select minmlj ~= 0
 
@@ -380,15 +343,15 @@ region boostedW16
 
 # Control regions: W+jets
 region boostedWCRWjets
-  select size(electronsWtight) + size(muonsWtight) == 1 
-  select size(electronsWloose) + size(muonsWloose) == 0 
+  select size(leptonsWtight) == 1 
+  select size(leptonsWloose) == 0 
   select size(HtagsType1) + size(HtagsType2) == 0
   select size(AK4jets) >= 3 
   select pT(AK4jets[0]) > 300
   select pT(AK4jets[1]) > 150
   select pT(AK4jets[2]) > 100
   select MET > 75
-  select dR(leptonsW[0], AK4jets[1]) <= 1
+  select dR(leptonsWtight[0], AK4jets[1]) <= 1
   select size(bjets) == 0
 
 region boostedWCRWjets0W
@@ -401,15 +364,15 @@ region boostedWCRWjetsW
   
 # Control regions: tt+jets
 region boostedWCRWjets
-  select size(electronsWtight) + size(muonsWtight) == 1 
-  select size(electronsWloose) + size(muonsWloose) == 0 
+  select size(leptonsWtight) == 1 
+  select size(leptonsWloose) == 0 
   select size(HtagsType1) + size(HtagsType2) == 0
   select size(AK4jets) >= 3 
   select pT(AK4jets[0]) > 300
   select pT(AK4jets[1]) > 150
   select pT(AK4jets[2]) > 100
   select MET > 75
-  select dR(leptonsW[0], AK4jets[1]) <= 1
+  select dR(leptonsWtight[0], AK4jets[1]) <= 1
   select size(bjets) >= 1
 
 region boostedWCRWjets0W
