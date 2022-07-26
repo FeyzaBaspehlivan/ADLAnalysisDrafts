@@ -28,7 +28,7 @@ object AK4jets
 # b-tagged jets
 object bjets
   take AK4jets
-  select btag(AK4jets) > 0.890 
+  select flavor(AK4jets) > 0.890 
 #  select dR(Higgs, AK4jets) > 0.8 # from AN2015_327.  The others don't mention this.
 
 # ----------------------------------------
@@ -56,13 +56,13 @@ object Hcands
 object HtagsType1
   take Hcands
   # require 1 subjet passing pfCombinedInclusiveSecondaryVertexV2BJetTags
-  select (subjet1_btag(Hcands) >= 0.5 and subjet2_btag(Hcands) < 0.5) or (subjet1_btag(Hcands) < 0.5 and subjet2_btag(Hcands) >= 0.5)
+  select (subjet1btag(Hcands) >= 0.5 and subjet2btag(Hcands) < 0.5) or (subjet1btag(Hcands) < 0.5 and subjet2btag(Hcands) >= 0.5)
 
 # Higgses - boosted H-tag Type-II
 object HtagsType2
   take Hcands
   # require 2 subjets passing pfCombinedInclusiveSecondaryVertexV2BJetTags
-  select subjet1_btag(Hcands) >= 0.5 and subjet2_btag(Hcands) >= 0.5
+  select subjet1btag(Hcands) >= 0.5 and subjet2btag(Hcands) >= 0.5
 
 # ----------------------------------------
 # Leptons
