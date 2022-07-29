@@ -56,13 +56,13 @@ object Hcands
 object HtagsType1
   take Hcands
   # require 1 subjet passing pfCombinedInclusiveSecondaryVertexV2BJetTags
-  select (subjet1btag(Hcands) >= 0.5 and subjet2btag(Hcands) < 0.5) or (subjet1btag(Hcands) < 0.5 and subjet2btag(Hcands) >= 0.5)
+  select (subjet1btag(Hcands) >= 0.8 and subjet2btag(Hcands) < 0.8) or (subjet1btag(Hcands) < 0.8 and subjet2btag(Hcands) >= 0.8)
 
 # Higgses - boosted H-tag Type-II
 object HtagsType2
   take Hcands
   # require 2 subjets passing pfCombinedInclusiveSecondaryVertexV2BJetTags
-  select subjet1btag(Hcands) >= 0.5 and subjet2btag(Hcands) >= 0.5
+  select subjet1btag(Hcands) >= 0.8 and subjet2btag(Hcands) >= 0.8
 
 # ----------------------------------------
 # Leptons
@@ -218,7 +218,7 @@ region boostedW
   select pT(AK4jets[2]) > 100
   select MET > 75
   select dR(leptonsWtight[0], AK4jets[1]) > 1
-  select minmlb ~= 0
+  select size(bjets) > 0 ? minmlb ~= 0 : ALL
   select minmlj ~= 0
 
 region boostedW1
