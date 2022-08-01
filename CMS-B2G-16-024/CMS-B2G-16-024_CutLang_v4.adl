@@ -150,10 +150,8 @@ object AK8jets2b
 object bjetsH
   take bjets
   select pt(bjets) > 31
-  #select size(HtagsType1) > 0 ? dR(bjets, HtagsType1) > 0.8 : ALL # from AN2015_327.  The others don't mention this.
-  #select size(HtagsType1) > 0 ? dR(bjets, HtagsType1) > 0.8 : ALL # from AN2015_327.  The others don't mention this.
-  #select dR(bjets, HtagsType1) > 0.8 # from AN2015_327.  The others don't mention this.
-  #select dR(HtagsType2, bjets) > 0.8 # from AN2015_327.  The others don't mention this.
+  select dR(bjets, HtagsType1) > 0.8 # from AN2015_327.  The others don't mention this.
+  select dR(bjets, HtagsType2) > 0.8 # from AN2015_327.  The others don't mention this.
 
 # ========================================
 ### EVENT VARIABLES
@@ -167,6 +165,8 @@ define minmlb = m(leptonsWtight[0] + bjets[-1])
 
 # The minimum mass of the lepton and any AK4 jet
 define minmlj = m(leptonsWtight[0] + AK4jets[-1])
+
+define tau21Wjetsm = tau2(Wjetsm) / tau1(Wjetsm)
 
 # ========================================
 ### EVENT SELECTION
@@ -184,7 +184,10 @@ region boostedH
   select size(electronsH) == 1 ? pT(AK8jets[0]) >= 250 : ALL
   select size(electronsH) == 1 ? pT(AK4jets[1]) >= 70 : ALL
   select ST > 800
+  select size(HtagsType1) >= 0
+  select size(HtagsType2) >= 0
   select size(bjetsH) >= 1
+#  histo hmAK8jet2b , "mass of 1st AK8 jet with 2bs", 15, 0, 300,  msoftdrop(AK8jets2b[0]) 
 
 region boostedH2b
   boostedH
@@ -212,6 +215,8 @@ region boostedHCRttjets
   select size(electronsH) == 1 ? pT(AK8jets[0]) >= 250 : ALL
   select size(electronsH) == 1 ? pT(AK4jets[1]) >= 70 : ALL
   select ST > 800
+  select size(HtagsType1) >= 0
+  select size(HtagsType2) >= 0
   select size(bjetsH) >= 2
   select MET > 100
   select size(HtagsType1) == 1
@@ -227,11 +232,12 @@ region boostedHCRWjets
   select size(electronsH) == 1 ? pT(AK8jets[0]) >= 250 : ALL
   select size(electronsH) == 1 ? pT(AK4jets[1]) >= 70 : ALL
   select ST > 800
+  select size(HtagsType1) >= 0
+  select size(HtagsType2) >= 0
   select size(bjetsH) == 0
   select MET > 100
   select size(HtagsType1) == 1
   select size(HtagsType2) == 0
-  # plot ST
   histo hST, "ST (GeV)", 750 875 1000 1125 1500 2000 2500 3000 4500 6500, ST
 
 # ----------------------------------------
@@ -253,15 +259,15 @@ region boostedW
   histo hnbjets , "number of b jets" , 6, 0, 6, size(bjets)
   histo hnWjets , "number of W jets" , 4, 0, 4, size(Wjets)
 
-region boostedWx
+region boostedWtau
   boostedW
   select size(Wjetstau) > 0
   histo hWjetsm , "m of W jets" , 50, 0, 500, m(Wjetstau) 
 
-region boostedWy
+region boostedWm
   boostedW
   select size(Wjetsm) > 0
-#  histo hWjetstau21 , "tau21 of W jets" , 50, 0, 1, tau2(Wjetsm)/tau1(Wjetsm)
+  histo hWjetstau21 , "tau21 of W jets" , 50, 0, 1, tau21Wjetsm 
 
 region boostedW1
   boostedW
