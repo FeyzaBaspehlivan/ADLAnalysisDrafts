@@ -106,16 +106,6 @@ object Wjets
   select msoftdrop(AK8jets) [] 65 105 
   select tau2(AK8jets) / tau1(AK8jets) <= 0.6 # n-subjettiness tagging, eq 2
 
-# Boosted Ws without tau21 cut
-object Wjetsm
-  take AK8jets 
-  select msoftdrop(AK8jets) [] 65 105 
-
-# Boosted Ws without mass cut
-object Wjetstau
-  take AK8jets 
-  select tau2(AK8jets) / tau1(AK8jets) <= 0.6 # n-subjettiness tagging, eq. 2
-
 # Boosted Higgses
 object Hcands
   take AK8jets
@@ -132,12 +122,6 @@ object HtagsType2
   take Hcands
   # require 2 subjets passing b-tagging criteria
   select subjet1btag(Hcands) >= 0.8 and subjet2btag(Hcands) >= 0.8
-
-# Boosted Higgses - H-tag Type-II without mass cut
-object AK8jets2b
-  take AK8jets
-  # require 2 subjets passing b-tagging criteria
-  select subjet1btag(AK8jets) >= 0.8 and subjet2btag(AK8jets) >= 0.8
 
 # b-tagged jets - for boosted H regions
 object bjetsH
