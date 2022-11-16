@@ -1,0 +1,40 @@
+object leptons: Union(ELE,MUO,TAU)
+
+algo preselection
+	select 		ALL
+	select 		Size (PHO) >=1
+	select  	Count (leptons) == 0 #LEP yazınca hata verdi sürekli, ben de kendi lepton sınıfımı tanımladım
+
+region SRL
+	preselection
+	select		Pt(PHO_0) >145
+	select 		Size (JET) >=5
+	select 		dR(METLV_0,JET[0]) >0.4
+	select 		dR(JET[1],METLV_0) >0.4
+	select 		dR(PHO[0],METLV_0) >0.4
+	select 		MET >250
+	select  	fHT > 2000
+	select 		Sum (Pt(JET_0)+Pt(JET_1)+Pt(JET_2)+Pt(JET_3))/fHT < 0.90
+
+region SRM
+	preselection
+	select		Pt(PHO_0) >300
+	select 		Size (JET) >=5
+	select 		dR(METLV_0,JET[0]) >0.4
+	select 		dR(JET[1],METLV_0) >0.4
+	select 		dR(PHO[0],METLV_0) >0.4
+	select 		MET >300
+	select  	fHT > 1600
+	select 		Sum (Pt(JET_0)+Pt(JET_1)+Pt(JET_2)+Pt(JET_3))/fHT < 0.90
+
+region SRH
+	preselection
+	select		Pt(PHO_0) >400
+	select 		Size (JET) >=3
+	select 		dR(METLV_0,JET[0]) >0.4
+	select 		dR(JET[1],METLV_0) >0.4
+	select 		dR(PHO[0],METLV_0) >0.4
+	select 		MET >600
+	select  	fHT > 1600
+
+

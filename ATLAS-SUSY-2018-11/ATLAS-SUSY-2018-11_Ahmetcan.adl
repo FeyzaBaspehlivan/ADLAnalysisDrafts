@@ -1,0 +1,209 @@
+object goodPho : PHO
+  select Pt(PHO) > 25
+  select absEta(PHO) < 2.37
+  reject absEta(PHO) [] 1.37 1.52
+
+object goodEle : ELE
+  select Pt(ELE) > 10
+  select absEta(ELE) < 2.47
+
+object goodMuo : MUO
+  select Pt(MUO) > 10
+  select absEta(MUO) < 2.7
+
+object goodJet : JET 
+  select Pt(JET) > 20
+  select absEta(JET) < 2.5
+
+object btJet : goodJet
+  select bTag(goodJet) == 1
+
+object srJet : goodJet
+  select Pt(goodJet) > 30
+
+object goodLepton : Union(goodEle , goodMuo)
+
+define jpHT : sum(Pt(goodJet)) + Pt(goodPho[0])
+
+define RT4 : (Pt(goodJet[0]) + Pt(goodJet[1]) + Pt(goodJet[2]) + Pt(goodJet[3])) / (sum(Pt(goodJet)))
+
+region SRL
+  select ALL
+  select Size(goodPho) >= 1
+  histo phopt,"photon pt",100,0,400000,Pt(goodPho)
+  select Pt(goodPho[0]) > 145
+  select Size(goodLepton) == 0
+  select Size(goodJet) >= 5
+  select Pt(goodJet) > 30
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select dPhi(goodPho[0], METLV[0]) > 0.4
+  select MET > 250
+  select jpHT > 2000
+  select RT4 < 0.90
+
+
+region SRM
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 300
+  select Size(goodLepton) == 0
+  select Size(goodJet) >= 5
+  select Pt(goodJet) > 30
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select dPhi(goodPho[0], METLV[0]) > 0.4
+  select MET > 300
+  select jpHT > 1600
+  select RT4 < 0.90
+
+region SRH
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 400
+  select Size(goodLepton) == 0
+  select Size(goodJet) >= 3
+  select Pt(goodJet) > 30
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select dPhi(goodPho[0], METLV[0]) > 0.4
+  select MET > 600
+  select jpHT > 1600
+
+region CRQ
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 145
+  select Size(goodLepton) == 0
+  select Size(goodJet) >= 3
+  select dPhi(goodJet[0], METLV[0]) < 0.4
+  select dPhi(goodPho[0], METLV[0]) > 0.4
+  select MET > 100
+  select jpHT > 1600
+
+region CRW
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 145
+  select Size(goodLepton) >= 1
+  select Size(goodJet) >= 1
+  select Size(btJet) == 0
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select MET [] 100 200
+  select jpHT > 400
+
+region CRT
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 145
+  select Size(goodLepton) >= 1
+  select Size(goodJet) >= 2
+  select Size(btJet) >= 2
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select MET [] 50 200
+  select jpHT > 400
+
+region VRL1
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 145
+  select Size(goodLepton) >= 1
+  select Size(goodJet) >= 2
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select MET [] 50 200
+  select jpHT > 800
+
+region VRL2
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 145
+  select Size(goodLepton) >= 1
+  select Size(goodJet) >= 2
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select MET [] 50 200
+  select jpHT > 1300
+
+region VRL3
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 145
+  select Size(goodLepton) >= 1
+  select Size(goodJet) >= 2
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select MET > 200
+  select jpHT [] 600 1600
+
+region VRL4
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 145
+  select Size(goodLepton) >= 1
+  select Size(goodJet) >= 2
+  select dPhi(goodJet[0], METLV[0]) < 0.4
+  select MET > 200
+  select jpHT > 1100
+
+region VRQ
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 145
+  select Size(goodLepton) == 0
+  select Size(goodJet) >= 3
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select dPhi(goodPho[0], METLV[0]) > 0.4
+  select MET [] 100 200
+  select jpHT > 1600
+
+region VRM1L
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 145
+  select Size(goodLepton) == 0
+  select Size(goodJet) >= 5
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select dPhi(goodPho[0], METLV[0]) > 0.4
+  select MET [] 100 200
+  select jpHT > 1600
+  select RT4 < 0.90
+
+region VRM2L
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 145
+  select Size(goodLepton) == 0
+  select Size(goodJet) >= 5
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select dPhi(goodPho[0], METLV[0]) > 0.4
+  select MET [] 150 200
+  select jpHT > 1600
+  select RT4 < 0.90
+
+region VRM1H
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 300
+  select Size(goodLepton) == 0
+  select Size(goodJet) >= 3
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select dPhi(goodPho[0], METLV[0]) > 0.4
+  select MET [] 100 200
+  select jpHT > 1600
+
+region VRM2H
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 300
+  select Size(goodLepton) == 0
+  select Size(goodJet) >= 3
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select dPhi(goodPho[0], METLV[0]) > 0.4
+  select MET [] 150 200
+  select jpHT > 1600
+
+region VRE
+  select ALL
+  select Size(goodPho) >= 1
+  select Pt(goodPho[0]) > 300
+  select Size(goodJet) >= 1
+  select Size(btJet) >= 1
+  select dPhi(goodJet[0], METLV[0]) > 0.4
+  select dPhi(goodPho[0], METLV[0]) < 0.4
+  select MET > 200
+  select jpHT [] 100 1600

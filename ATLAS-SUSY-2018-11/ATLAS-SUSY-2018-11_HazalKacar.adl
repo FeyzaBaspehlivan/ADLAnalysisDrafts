@@ -1,0 +1,260 @@
+
+#  title "Search for new phenomena in final states with photons, jets and missing #transverse momentum in 𝒑 𝒑 collisions at √𝒔 = 13 TeV with the ATLAS detector
+
+#  experiment ATLAS
+#  id  CERN-EP-2022-012
+#  sqrtS 13.0
+#  lumi 139
+#  arXiv:2206.06012 
+#  doi 10.48550/arXiv.2206.06012
+
+#############################################
+
+
+#Object Definitions
+
+
+object electrons: ELE
+   select pT(ELE) > 10
+   select AbsEta(ELE) < 2.47
+
+object muons: MUO 
+   select pT(MUO) > 10
+   select AbsEta(MUO) < 2.7
+       
+object leptons: Union(electrons,muons,TAU)
+
+object photons: PHO
+   select pT(PHO) > 25
+   select AbsEta(PHO) < 2.37
+   reject AbsEta(PHO) < 1.52 and AbsEta(PHO) > 1.37
+
+object jets: JET
+   select Pt(JET) > 30 
+
+object bjets: JET
+   select btag(JET) == 1 
+   select AbsEta(JET) < 2.5
+
+define ptsum = pT(jets[0])+pT(jets[1])+pT(jets[2])+pT(jets[3])
+define RT = ptsum/fHT(jets)
+
+
+object signalmuons: MUO 
+   select pT(MUO) > 25
+
+object signalelectrons: ELE
+   select pT(ELE) > 25
+
+object signalphotons: photons
+   select pT(photons) > 50
+
+object signaljets: JET
+   select pT(JET) > 30
+   select AbsEta(JET) < 2.5
+   
+
+
+
+
+#############################################
+
+
+#Signal Regions
+
+region SRL 
+   select ALL 
+   select Size(signalphotons) >= 1 
+   select Size(signaljets) >= 5
+   select Size(leptons) == 0
+   select pT(signalphotons[0]) > 145 
+   select MET > 250
+   select dPhi(signaljets[0], METLV[0]) > 0.4
+   select dPhi(signalphotons[0], METLV[0]) > 0.4
+   select fHT(signaljets) > 2000
+   select RT < 0.90
+
+region SRM
+   select ALL 
+   select Size(signalphotons) >= 1
+   select Size(leptons) == 0
+   select Size(signaljets) >= 5
+   select pT(signalphotons[0]) > 300 
+   select MET > 300
+   select dPhi(signaljets[0], METLV[0]) > 0.4
+   select dPhi(signalphotons[0], METLV[0]) > 0.4
+   select fHT(signaljets) > 1600
+   select RT < 0.90
+
+region SRH 
+   select ALL 
+   select Size(signalphotons) >= 1 
+   select Size(jets) >= 3
+   select Size(leptons) == 0
+   select pT(signalphotons[0]) > 400 
+   select MET > 600 
+   select dPhi(signaljets[0], METLV[0]) > 0.4
+   select dPhi(signalphotons[0], METLV[0]) > 0.4
+   select fHT(signaljets) > 1600
+
+
+#############################################
+
+
+#Validation Regions
+
+region CRQ 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 3
+   select Size(leptons) == 0
+   select pT(photons[0]) > 145 
+   select MET > 100 
+   select dPhi(jets[0], METLV[0]) < 0.4
+   select dPhi(photons[0], METLV[0]) > 0.4
+   select fHT(jets) > 1600
+
+region CRW 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 1
+   select Size(bjets) == 0 
+   select Size(leptons) == 1
+   select pT(photons[0]) > 145 
+   select MET > 100 and MET <200
+   select dPhi(jets[0], METLV[0]) > 0.4
+   select fHT(jets) > 400
+
+region CRT 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 2
+   select Size(bjets) >= 2 
+   select Size(leptons) == 0
+   select pT(photons[0]) > 145 
+   select MET > 50 and MET <200
+   select dPhi(jets[0], METLV[0]) > 0.4
+   select fHT(jets) > 400
+
+#---------------------------------------------#
+
+region VRL1 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 2
+   select Size(leptons) >= 1
+   select pT(photons[0]) > 145 
+   select MET > 50 and MET <200
+   select dPhi(jets[0], METLV[0]) > 0.4
+   select fHT(jets) > 800
+
+region VRL2 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 3
+   select Size(leptons) >= 1
+   select pT(photons[0]) > 145 
+   select MET > 50 and MET <200
+   select dPhi(jets[0], METLV[0]) > 0.4
+   select fHT(jets) > 1300
+
+region VRL3 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 3
+   select Size(leptons) >= 1
+   select pT(photons[0]) > 400 
+   select MET > 200 
+   select dPhi(jets[0], METLV[0]) > 0.4
+   select fHT(jets) > 600 and fHT(jets) < 1600
+
+region VRL4 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 3
+   select Size(leptons) >= 1
+   select pT(photons[0]) > 145 
+   select MET > 200 
+   select dPhi(jets[0], METLV[0]) < 0.4
+   select fHT(jets) > 1100
+
+
+#---------------------------------------------#
+
+
+region VRQ 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 3
+   select Size(leptons) == 0
+   select pT(photons[0]) > 145 
+   select MET > 100 and MET <200
+   select dPhi(jets[0], METLV[0]) > 0.4
+   select dPhi(photons[0], METLV[0]) > 0.4
+   select fHT(jets) > 1600
+
+region VRM1L 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 5
+   select Size(leptons) == 0
+   select pT(photons[0]) > 400 
+   select MET > 100 and MET <200
+   select dPhi(jets[0], METLV[0]) > 0.4
+   select dPhi(photons[0], METLV[0]) > 0.4
+   select fHT(jets) > 1600
+   select RT < 0.90
+
+region VRM2L 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 5
+   select Size(leptons) == 0
+   select pT(photons[0]) > 400 
+   select MET > 150 and MET <200
+   select dPhi(jets[0], METLV[0]) > 0.4
+   select dPhi(photons[0], METLV[0]) > 0.4
+   select fHT(jets) > 1600
+   select RT < 0.90
+
+
+region VRM1H 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 3
+   select Size(leptons) == 0
+   select pT(photons[0]) > 400 
+   select MET > 100 and MET <200
+   select dPhi(jets[0], METLV[0]) > 0.4
+   select dPhi(photons[0], METLV[0]) > 0.4
+   select fHT(jets) > 1600
+
+region VRM3H 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 3
+   select Size(leptons) == 0
+   select pT(photons[0]) > 400 
+   select MET > 150 and MET <200
+   select dPhi(jets[0], METLV[0]) > 0.4
+   select dPhi(photons[0], METLV[0]) > 0.4
+   select fHT(jets) > 1600
+
+
+#---------------------------------------------#
+
+region VRE 
+   select ALL 
+   select Size(photons) >= 1 
+   select Size(jets) >= 1
+   select Size(bjets) >= 1
+   select pT(photons[0]) > 145 
+   select MET > 200
+   select dPhi(jets[0], METLV[0]) > 0.4
+   select dPhi(photons[0], METLV[0]) < 0.4
+   select fHT(jets) > 100 and fHT(jets) < 1600
+
+
+
+
+
