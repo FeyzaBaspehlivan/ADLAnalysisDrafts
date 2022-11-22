@@ -1,0 +1,38 @@
+# ========================================
+### OBJECT SELECTIONS
+# ----------------------------------------
+
+object trigger
+  take TriggerVeto
+  select E(TriggerVeto) [] 1190 1350 #1274 keV gamma tagging
+  select Dxy(TriggerVeto) < 2 #mm, pattern recognition variable to distinguish one or more particles in detector
+  select timestd(TriggerVeto) < 10 #ns
+  
+object ecal1
+  take ECAL1
+  select E(ecal1) > 2800 #Reject backgrounds
+  select Dxy(ECAL1) < 2 #mm
+  select timestd(ECAL1) < 10 #ns
+
+object ecal2
+  take ECAL2
+  select E(ecal2) > 2800 #Reject backgrounds
+  select Dxy(ECAL2) < 2 #mm
+  select timestd(ECAL2) < 10 #ns
+
+define TimeDiff = abs(timempv(ecal1) - timempv(ecal2))
+define EnergyDiff = abs(E(ecal1) - E(ecal2))/((E(ecal1)+E(ecal2))/2)
+define EnergyAvg = (E(ecal1)+E(ecal2))/2/1000 # scale keV to MeV
+
+# ========================================
+### EVENT SELECTION
+# ----------------------------------------
+
+region monopole
+  select ALL
+  select size(trigger) == 1
+  select size(ecal1) == 1
+  select size(ecal2) == 1
+  select TimeDiff < 10 #ns
+  select EnergyDiff < 0.06 
+  histo hEnergy, "Energy (MeV)", 2.8, 5, 10, 20, 40, 80, 160, 320, EnergyAvg #Not fixed
