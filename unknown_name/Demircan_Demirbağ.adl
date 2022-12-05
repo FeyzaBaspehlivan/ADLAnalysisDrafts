@@ -1,0 +1,223 @@
+info analysis
+	title "Search for new phenomena in events with an energetic jet and missing transverse momentum in 𝒑 𝒑 collisions at p𝒔 = 13 TeV with the ATLAS detector"
+	experiment ATLAS
+	sqrtS 13.0
+	lumi 139
+	arXiv "2102.10874v"
+
+object jets
+	take jet
+	select pT(jet) > 20
+	select abseta(jet) < 2.8
+
+object bjets
+	take jets
+	select btag(jets) == 1
+	select pT(jet) > 30
+	select abseta(jet) < 2.5
+
+object eles
+	take ele
+	select pT(ele) > 7
+	select abseta(ele) < 2.47
+	select loose(ele) == 1
+
+object jetss # second s stands for second correction # makaleye paralel olsun diye tanımımı parçalı yaptım
+	take bjets
+	select dR(eles,bjets) >= 0.2 # herhangi elektron ile jet arasındaki açı 0.2den küçükse jeti at. açı 0.2den büyükse jeti al elektronu at
+#bu yazım elektron olmadığında hata verir mi? her seferinde conditional yazmalı mıyım?
+
+object elesf # eles final
+	take eles
+	select dR(eles,bjets) < 0.2 # yukarıdaki şartın devamı
+	reject dR(eles,jetss) [] 0.2 0.4 # kalan jetlere bu aralık kadar yakın olan elektronları at
+
+object muos
+	take muo
+	select pT(muo) > 7
+	select abseta(muo) < 2.5
+	select medium(muo) == 1
+
+object muosf # track'leri ile ilgili şartlar vardı koymamış oldum
+	take muos
+	select ALL # hepsini seç böyle denir değil mi? diğer objeleri çekmiyor değil mi?
+
+object taus
+	take tau
+	select pT(tau) > 10
+	select abseta(tau) < 2.5
+	select loose(tau) == 1 # bunun anlamının pt>20 ve abseta [] 1.37 1.52 ve tracklerle ilgili şartlar 
+#olduğunu söylüyor ayrıca belirtmedim, loose'un anlamının bu olduğuna nereden bakmam gerekiyor
+
+
+object tausf
+	take taus
+	reject dR(taus,muos) < 0.2
+	reject dR(taus,elesf) < 0.2
+
+object jetsss
+	take jetss
+	reject dR(tausf,jetss) < 0.2
+
+object phos
+	take pho
+	select tight(pho) == 1
+	select pT(pho) > 10
+	select abseta(pho) < 2.37
+
+object phosf
+	take phos
+	reject dR(phos,elesf) < 0.4
+	reject dR(phos,muos) < 0.4
+
+object jetsf
+	take jetsss
+	reject dR(phosf,jetsss) < 0.4
+
+#pTmiss tanımı çok gevşek olduğu için direct Cutlang'ın tanımı ile devam ettim
+
+region preselection
+	select ALL
+	select size(elesf) == 0
+	select size(muosf) == 0
+	select size(phosf) == 0
+	select size(tausf) == 0
+	select MET > 200
+#	select size(jetsf) [] 1 4 # neden çalışmıyor? elektron olmadığı için mi? # yoksa index belirtmediğim için mi?
+#	select pT(jetsf[0]) > 150
+#	select abseta(jetsf[0]) < 2.4
+
+
+
+
+###burada neden histogram kullanmak yerine region region böldük? en sona örnek bir histogram yazdım
+region EM0
+	preselection
+	select MET [] 200 250 
+	select dPhi(jetsf, METLV_0) > 0.6 ### jetsf'de bir şeyler mutlaka yanlış 
+
+region EM1
+	preselection
+	select MET [] 250 300 
+	select dPhi(jetsf, METLV_0) > 0.4
+
+region EM2
+	preselection
+	select MET [] 300 350 
+	select dPhi(jetsf, METLV_0) > 0.4
+
+region EM3
+	preselection
+	select MET [] 350 400 
+	select dPhi(jetsf, METLV_0) > 0.4
+
+#
+#
+#
+
+region EM12
+	preselection
+	select MET > 1200
+	select dPhi(jetsf, METLV_0) > 0.4
+
+#######################################################
+
+region IM0
+	preselection
+	select MET > 200
+	select dPhi(jetsf, METLV_0) > 0.6
+
+region IM1
+	preselection
+	select MET > 250 
+	select dPhi(jetsf, METLV_0) > 0.4
+
+region IM2
+	preselection
+	select MET > 300 
+	select dPhi(jetsf, METLV_0) > 0.4
+
+
+#
+#
+#
+
+region IM12
+	preselection
+	select MET > 1200
+	select dPhi(jetsf, METLV_0) > 0.4
+
+########################################################
+
+region SR
+	select ALL
+	select MET > 200
+	select size(jetsf) <= 4
+	select pT(jetsf) > 30
+	select abseta(jetsf) < 2.8
+#	select abs(dPhi(jetsf, METLV_0)) > "MET <= 250 ? 0.6 : 0.4" # ternary nasıl kullanılıyor
+	select pT(jetsf[0]) > 150
+	select abseta(jetsf[0]) < 2.4
+	select size(elesf) == 0
+	select size(muosf) == 0
+	select size(tausf) == 0
+	select size(phosf) == 0
+
+region W-to-muon-notrino
+	select ALL
+	select size(muosf) == 1
+	select pT(muosf[0]) > 10
+	select m(muosf[0]) [] 30 100
+	select size(elesf) == 0
+	select size(tausf) == 0
+	select size(phosf) == 0
+#	select sum(pT(METLV_0),pT(muosf[0])) > 200  #something is wrong
+
+region Z-to-muon-muon
+	select ALL
+	select size(muosf) == 2
+	select pT(muosf[0:1]) > 10
+	select m(muosf[0])+m(muosf[1]) [] 66 116
+	select size(elesf) == 0
+	select size(tausf) == 0
+	select size(phosf) == 0
+#	select sum(pT(METLV_0),pT(muosf[0:1])) > 200
+
+region W-to-ele-notrino
+	select ALL
+	select size(elesf) == 1
+	select tight(elesf[0]) == 1
+	select pT(elesf[0]) > 30
+	select abseta(elesf[0]) ][ 1.37 1.57
+	select m(METLV_0) [] 30 100
+	select MET > 70
+	select MET/sqrt(fHT) > 5
+	select size(muosf) == 0
+	select size(tausf) == 0
+	select size(phosf) == 0
+#	select sum(pT(METLV_0),pT(elesf[0])) > 200
+
+region Z-to-ele-ele
+	select ALL
+	select size(elesf) == 2
+	select pT(elesf[0:1]) > 30
+	select m(elesf[0])+m(elesf[1]) [] 66 116
+	select size(muosf) == 0
+	select size(tausf) == 0
+	select size(phosf) == 0
+#	select sum(pT(METLV_0),pT(elesf[0:1])) > 200
+
+region Top1
+	W-to-muon-notrino
+	size(jetsf) > 0
+
+region Top1
+	W-to-ele-notrino
+	size(jetsf) > 0
+
+########################################################
+
+region validation
+	SR
+#	select abs(dPhi(jetsf, METLV_0)) > "MET <= 250 ? 0.4 : 0.3" # ternary nasıl kullanılıyor
+	histo  "MET (GeV)" , 200 250 300 350 400 , MET
