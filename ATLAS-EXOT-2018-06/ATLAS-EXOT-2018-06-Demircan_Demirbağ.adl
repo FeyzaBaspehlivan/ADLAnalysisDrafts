@@ -24,13 +24,12 @@ object eles
 
 object jetss # second s stands for second correction # makaleye paralel olsun diye tanımımı parçalı yaptım
 	take bjets
-	select dR(eles,bjets) >= 0.2 # herhangi elektron ile jet arasındaki açı 0.2den küçükse jeti at. açı 0.2den büyükse jeti al elektronu at
-#bu yazım elektron olmadığında hata verir mi? her seferinde conditional yazmalı mıyım?
+	select dR(bjets,eles) >= 0.2 #if the angle between any electron and any jet is less than 0.2 reject the jet. if the angle bigger than 0.2 select jet and reject the electron
 
 object elesf # eles final
 	take eles
-	select dR(eles,bjets) < 0.2 # yukarıdaki şartın devamı
-	reject dR(eles,jetss) [] 0.2 0.4 # kalan jetlere bu aralık kadar yakın olan elektronları at
+	select dR(eles,bjets) < 0.2 # continuity of the condition stated above
+	reject dR(eles,jetss) [] 0.2 0.4 # reject the electrons that are this close to jets
 
 object muos
 	take muo
@@ -38,17 +37,16 @@ object muos
 	select abseta(muo) < 2.5
 	select medium(muo) == 1
 
-object muosf # track'leri ile ilgili şartlar vardı koymamış oldum
+object muosf # there were conditions on tracks, I haven't able to implement
 	take muos
-	select ALL # hepsini seç böyle denir değil mi? diğer objeleri çekmiyor değil mi?
+	select ALL
 
 object taus
 	take tau
 	select pT(tau) > 10
 	select abseta(tau) < 2.5
-	select loose(tau) == 1 # bunun anlamının pt>20 ve abseta [] 1.37 1.52 ve tracklerle ilgili şartlar 
-#olduğunu söylüyor ayrıca belirtmedim, loose'un anlamının bu olduğuna nereden bakmam gerekiyor
-
+	select loose(tau) == 1 # it says pt>20 and abseta [] 1.37 1.52 (I assumed loose condition in the file matches with this)
+#and also there were conditions on tracks that I did not implement.
 
 object tausf
 	take taus
@@ -74,7 +72,7 @@ object jetsf
 	take jetsss
 	reject dR(phosf,jetsss) < 0.4
 
-#pTmiss tanımı çok gevşek olduğu için direct Cutlang'ın tanımı ile devam ettim
+#since the definition of pTmiss was too loose I continued with the definition of CutLang.
 
 region preselection
 	select ALL
@@ -83,7 +81,7 @@ region preselection
 	select size(phosf) == 0
 	select size(tausf) == 0
 	select MET > 200
-#	select size(jetsf) [] 1 4 # neden çalışmıyor? elektron olmadığı için mi? # yoksa index belirtmediğim için mi?
+#	select size(jetsf) [] 1 4 # something is wrong here
 #	select pT(jetsf[0]) > 150
 #	select abseta(jetsf[0]) < 2.4
 
@@ -94,7 +92,7 @@ region preselection
 region EM0
 	preselection
 	select MET [] 200 250 
-	select dPhi(jetsf, METLV_0) > 0.6 ### jetsf'de bir şeyler mutlaka yanlış 
+	select dPhi(jetsf, METLV_0) > 0.6 ### absoulutely something is wrong with jetsf
 
 region EM1
 	preselection
@@ -155,7 +153,7 @@ region SR
 	select size(jetsf) <= 4
 	select pT(jetsf) > 30
 	select abseta(jetsf) < 2.8
-#	select abs(dPhi(jetsf, METLV_0)) > "MET <= 250 ? 0.6 : 0.4" # ternary nasıl kullanılıyor
+#	select abs(dPhi(jetsf, METLV_0)) > "MET <= 250 ? 0.6 : 0.4" # I need to check notation of ternary for CutLang
 	select pT(jetsf[0]) > 150
 	select abseta(jetsf[0]) < 2.4
 	select size(elesf) == 0
@@ -219,5 +217,5 @@ region Top1
 
 region validation
 	SR
-#	select abs(dPhi(jetsf, METLV_0)) > "MET <= 250 ? 0.4 : 0.3" # ternary nasıl kullanılıyor
+#	select abs(dPhi(jetsf, METLV_0)) > "MET <= 250 ? 0.4 : 0.3" # I need to check notation of ternary for CutLang
 	histo  "MET (GeV)" , 200 250 300 350 400 , MET
