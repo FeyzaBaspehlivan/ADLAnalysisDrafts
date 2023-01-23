@@ -1,0 +1,68 @@
+#  title "Search for pairs of scalar leptoquarks decaying into quarks and electrons or muons in √s= 13 TeV collisions with the ATLAS detector"
+#  experiment ATLAS
+#  id  CERN-EP-2020-084
+#  sqrtS 13.0
+#  lumi 139
+#  arXiv: 2006.05872
+#  https://doi.org/10.48550/arXiv.2006.05872
+
+minpte = 24 # min pt of electrons
+minptm = 26 # min Et of muons      //is this description valid?
+
+
+object goodJet: JET
+	select Pt(JET) > 45
+	select AbsEta(ELE) < 2.5
+	
+object goodEle : ELE
+	select Pt(ELE) > 20
+	select AbsEta(ELE) < 2.47
+	reject ELE ? 
+	
+object goodMuon: MUO
+	select AbsEta(MUO) < 2.5
+	#select AbsEta(MUO) [] 2.5 2.7
+	select Pt(MUO) > 20
+	
+object calotagMuon: MUO
+	select AbsEta(MUO) < 0.1
+
+object goodLep : Union(goodEle , goodMuo)
+
+define ttps : ( MET / sqrt(fHT(jets) ))
+
+define M_lj : m( goodLep goodJet )
+
+define M_asym : (max( M_lj[0] M_lj[1] ) - min( M_lj[0] M_lj[1] )) / (max( M_lj[0] M_lj[1] ) + min( M_lj[0] M_lj[1] ))
+	
+#Preselection
+
+select ALL
+select size(goodMUO) == 2 OR size(goodELE) == 2		#Events are required to have exactly two electrons or two muons
+select q(goodLep[0]) != q(goodLep[1])				#oppositely charged 
+select Pt(goodLep) > 27								#and with transverse momenta greater than 27 GeV
+
+select goodLep=ELE ? AbsEta(goodLep) < 2.47 : AbsEta(goodLep) < 2.7 
+select m(goodLep[0] goodLep[1]) > 130				#dilepton invariant pair mass and pT to suppress the background from the production of on-shell Z
+select Pt(goodLep[0] goodLep[1]) >75
+
+#if there are more the 2 jets, first jets are b- or c-tagged.
+#if there is only 1 tagged jet, second jet is the one with the highest pT.
+#if there is no tagged jets two with the highest pTs are chosen.
+#events having more than 2 tagged jets are rejected.
+
+select size(goodJet) >= 2 
+select size(BJET) == 1 OR size(CJET) == 1 
+
+select M_asym < 0.4										#SM bg contributions are suppressed
+
+select ttps < 3.5  #bacground from tt~ production is suppressed.
+
+region SB
+	select M_asym [] 0.2 0.4 
+	
+region SR
+	select M_asym < 0.2
+
+region CR
+	select M_asym < 0.2
